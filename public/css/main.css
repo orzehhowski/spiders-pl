@@ -1,0 +1,12 @@
+nav input {
+  max-width: 500px;
+}
+
+.spider-card {
+  width: 18rem;
+}
+.spider-card img {
+  height: 18rem;
+  -o-object-fit: cover;
+     object-fit: cover;
+}/*# sourceMappingURL=main.css.map */
