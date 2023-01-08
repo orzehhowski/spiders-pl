@@ -31,9 +31,8 @@ app.use(errors.error404);
 Family.hasMany(Species);
 Species.belongsTo(Family);
 
-db
-  // .sync()
-  .sync({ force: true })
+db.sync()
+  // db.sync({ force: true })
   .then(() => {
     app.listen(3000);
   })
