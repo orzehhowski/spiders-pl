@@ -1,0 +1,42 @@
+<%- include('../includes/head.ejs') %>
+<%- include('../includes/nav.ejs') %>
+<div class="container">
+
+  <h1 class="mt-3"><%= header %></h1>
+  <h2><%= latinName %></h2>
+  <hr>
+  <h5>Gatunki</h5>
+  <div class="spiders-list">
+    <div class="row row-cols-auto">
+      <% for (spider of species) { %>
+        <div class="col">
+          <a class="spider-card-link text-dark" href="/spider/<%= spider.id %>">
+            <div class="card spider-card my-2" id="s-<%= spider.id %>">
+            <img src="<%= spider.image %>" class="card-img-top" alt="..." >
+            <div class="card-body">
+              <h5 class="card-title"><%= spider.name %></h5>
+              <p class="card-text"><%= spider.latinName %></p>
+            </div>
+          </div>
+        </a>
+      </div>
+      <% } %>
+    </div>
+  </div>
+  <h5 class="mt-4">Wygląd</h5>
+  <hr class="small">
+  <p><%= appearanceDesc %></p>
+  <h5>Tryb życia</h5>
+  <hr class="small">
+  <p><%= lifestyleDesc %></p>
+  <h5>Źródła zewnętrzne</h5>
+  <hr class="small">
+  <div class="mb-4">
+    <% for (source of resources) { %>
+      <p class="resources">
+        <a href="<%= source %>" target="_blank" rel="noopener"><%= source %></a>
+      </p>
+    <% } %>
+  </div>
+</div>
+<%- include('../includes/end.ejs') %>

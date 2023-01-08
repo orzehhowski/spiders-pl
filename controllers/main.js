@@ -1,5 +1,14 @@
+const Family = require("../models/family");
+const err = require("../util/errorclg");
+
 module.exports.getHome = (req, res, next) => {
-  res.render("main/home", {
-    title: "Polskie Pająki",
-  });
+  Family.findAll()
+    .then((families) => {
+      res.render("main/home", {
+        families,
+        title: "Polskie Pająki",
+        header: "Rodziny",
+      });
+    })
+    .catch(err);
 };

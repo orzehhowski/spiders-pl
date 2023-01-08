@@ -2,11 +2,34 @@ nav input {
   max-width: 500px;
 }
 
-.spider-card {
-  width: 16rem;
+hr.small {
+  width: 40%;
 }
-.spider-card img {
+
+h2 {
+  font-style: italic;
+}
+
+.spider-card-link {
+  text-decoration: none !important;
+}
+.spider-card-link .spider-card {
+  width: 16rem;
+  transition: transform 0.2s;
+}
+.spider-card-link .spider-card img {
   height: 16rem;
   -o-object-fit: cover;
      object-fit: cover;
+}
+.spider-card-link .spider-card .card-text {
+  font-style: italic;
+}
+
+.resources {
+  overflow-x: hidden;
+}
+
+.spider-card:hover {
+  transform: scale(1.04);
 }/*# sourceMappingURL=main.css.map */
