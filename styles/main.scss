@@ -5,12 +5,12 @@ nav {
     }
 }
 
-hr.small {
-    width: 40%;
+.italic {
+    font-style: italic;
 }
 
-h2 {
-    font-style: italic;
+hr.small {
+    width: 40%;
 }
 
 .spider-card-link {
@@ -24,10 +24,6 @@ h2 {
         img {
             height: 16rem;
             object-fit: cover;
-        }
-
-        .card-text {
-            font-style: italic;
         }
     }
 }

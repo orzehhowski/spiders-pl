@@ -9,23 +9,28 @@ module.exports.getAbout = (req, res, next) => {
   let appearanceDesc;
   let lifestyleDesc;
   let resources;
-  Family.findByPk(id).then((family) => {
-    header = family.name;
-    latinName = family.latinName;
-    appearanceDesc = family.appearanceDesc;
-    lifestyleDesc = family.lifestyleDesc;
-    resources = family.resources.split(" ");
-    return Species.findAll({ where: { familyId: family.id } }).then(
-      (species) => {
-        res.render("main/familyPage", {
-          header,
-          latinName,
-          appearanceDesc,
-          lifestyleDesc,
-          resources,
-          species,
-        });
+  Family.findByPk(id)
+    .then((family) => {
+      if (!family) {
+        next();
       }
-    );
-  });
+      header = family.name;
+      latinName = family.latinName;
+      appearanceDesc = family.appearanceDesc;
+      lifestyleDesc = family.lifestyleDesc;
+      resources = family.resources ? family.resources.split(" ") : [];
+      return Species.findAll({ where: { familyId: family.id } }).then(
+        (species) => {
+          res.render("main/familyPage", {
+            header,
+            latinName,
+            appearanceDesc,
+            lifestyleDesc,
+            resources,
+            species,
+          });
+        }
+      );
+    })
+    .catch(err);
 };

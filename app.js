@@ -38,7 +38,7 @@ Species.belongsTo(Family);
 // db.sync()
 db.sync({ force: true })
   .then(async () => {
-    const res = await Family.create({
+    await Family.create({
       name: "krzyżakowate",
       latinName: "araneidae",
       appearanceDesc:
@@ -59,7 +59,17 @@ db.sync({ force: true })
           maxSizeMilimeters: 20,
           minSizeMilimeters: 10,
         })
-        .then((result) => {
+        .then(async () => {
+          await Family.create({
+            name: "kwadratnikowate",
+            latinName: "Tetragnathidae",
+            image: "/img/pajak1.jpg",
+          }).then(async (family) => {
+            family.createSpecies({
+              latinName: "Metellina segmentata",
+              image: "/img/pajak1.jpg",
+            });
+          });
           app.listen(3000);
         });
     });
