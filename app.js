@@ -65,31 +65,37 @@ db.sync({ force: true })
           maxSizeMilimeters: 20,
         })
         .then((species) => {
-          species
-            .createImage({
+          Image.bulkCreate([
+            {
               src: "/img/krzyzak.jpg",
               author: "Bartosz Orzechowski",
-            })
-            .then(() => {
-              Family.create({
-                name: "kwadratnikowate",
-                latinName: "Tetragnathidae",
-                image: "/img/pajak1.jpg",
-                imageAuthor: "Bartosz Orzechowski",
-              }).then((family) => {
-                family
-                  .createSpecies({
-                    latinName: "Metellina segmentata",
-                  })
-                  .then((species) => {
-                    species.createImage({
-                      src: "/img/pajak1.jpg",
-                      author: "Bartosz Orzechowski",
-                    });
+              speciesId: 1,
+            },
+            {
+              src: "/img/krzyzak2.jpg",
+              author: "Bartosz Orzechowski",
+              speciesId: 1,
+            },
+          ]).then(() => {
+            Family.create({
+              name: "kwadratnikowate",
+              latinName: "Tetragnathidae",
+              image: "/img/pajak1.jpg",
+              imageAuthor: "Bartosz Orzechowski",
+            }).then((family) => {
+              family
+                .createSpecies({
+                  latinName: "Metellina segmentata",
+                })
+                .then((species) => {
+                  species.createImage({
+                    src: "/img/pajak1.jpg",
+                    author: "Bartosz Orzechowski",
                   });
-              });
-              app.listen(3000);
+                });
             });
+            app.listen(3000);
+          });
         });
     });
   })
