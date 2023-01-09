@@ -19,7 +19,6 @@ const Species = db.define("species", {
   appearanceDesc: Sequelize.TEXT("long"),
   lifestyleDesc: Sequelize.TEXT("long"),
   resources: Sequelize.STRING,
-  image: Sequelize.STRING,
 });
 
 module.exports = Species;

@@ -23,6 +23,7 @@ const Family = db.define("family", {
   lifestyleDesc: Sequelize.TEXT("long"),
   resources: Sequelize.STRING,
   image: Sequelize.STRING,
+  imageAuthor: Sequelize.STRING,
 });
 
 module.exports = Family;

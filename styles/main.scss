@@ -32,6 +32,16 @@ hr.small {
     overflow-x: hidden;
 }
 
+.carousel {
+    border-radius: 10px;
+    max-height: 30rem;
+    max-width: 36rem;
+    overflow: hidden;
+    img {
+        object-fit: cover;
+    }
+}
+
 .spider-card:hover {
     transform: scale(1.04);
 }

@@ -1,9 +1,10 @@
 const Family = require("../models/family");
 const Species = require("../models/species");
+const Image = require("../models/image");
 const err = require("../util/errorclg");
 
 module.exports.getAbout = (req, res, next) => {
-  const id = req.params.id;
+  const id = +req.params.id;
   let header;
   let latinName;
   let appearanceDesc;
@@ -19,18 +20,19 @@ module.exports.getAbout = (req, res, next) => {
       appearanceDesc = family.appearanceDesc;
       lifestyleDesc = family.lifestyleDesc;
       resources = family.resources ? family.resources.split(" ") : [];
-      return Species.findAll({ where: { familyId: family.id } }).then(
-        (species) => {
-          res.render("main/familyPage", {
-            header,
-            latinName,
-            appearanceDesc,
-            lifestyleDesc,
-            resources,
-            species,
-          });
-        }
-      );
+      return Species.findAll({
+        where: { familyId: family.id },
+        include: Image,
+      }).then((species) => {
+        res.render("main/familyPage", {
+          header,
+          latinName,
+          appearanceDesc,
+          lifestyleDesc,
+          resources,
+          species,
+        });
+      });
     })
     .catch(err);
 };
