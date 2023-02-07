@@ -1,8 +1,8 @@
-const express = require("express");
-const familyController = require("../controllers/family");
+import { Router } from "express";
+import familyController from "../controllers/family";
 
-const router = express.Router();
+const router = Router();
 
 router.get("/:id", familyController.getAbout);
 
-module.exports = router;
+export default router;

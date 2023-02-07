@@ -69,13 +69,13 @@ class Family extends Model<InferAttributes<Family>, InferCreationAttributes<Fami
   declare getSpider: HasManyGetAssociationsMixin<Spider>;
   declare addSpider: HasManyAddAssociationMixin<Spider, number>;
   declare addSpiders: HasManyAddAssociationsMixin<Spider, number>;
-  declare setSpider: HasManySetAssociationsMixin<Spider, number>;
+  declare setSpiders: HasManySetAssociationsMixin<Spider, number>;
   declare removeSpider: HasManyRemoveAssociationMixin<Spider, number>;
   declare removeSpiders: HasManyRemoveAssociationsMixin<Spider, number>;
   declare hasSpider: HasManyHasAssociationMixin<Spider, number>;
   declare hasSpiders: HasManyHasAssociationsMixin<Spider, number>;
-  declare countSpider: HasManyCountAssociationsMixin;
-  declare createSpider: HasManyCreateAssociationMixin<Spider>;
+  declare countSpiders: HasManyCountAssociationsMixin;
+  declare createSpider: HasManyCreateAssociationMixin<Spider, "familyId">;
 
   declare spiders?: NonAttribute<Spider[]>;
 

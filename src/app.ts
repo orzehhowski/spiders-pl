@@ -1,15 +1,16 @@
-require("dotenv").config();
+import dotenv from "dotenv"
+dotenv.config();
 
 import express from "express";
 import path from "path";
 
 import mainRoutes from "./routes/main";
 import familyRoutes from "./routes/family";
-import speciesRoutes from "./routes/species";
+import spiderRoutes from "./routes/spider";
 import errors from "./controllers/error";
 import db from "./util/db";
 import Family from "./models/family";
-import Species from "./models/spider";
+import Spider from "./models/spider";
 import Image from "./models/image";
 
 const app = express();
@@ -28,16 +29,22 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, "public")));
 app.use(mainRoutes);
 app.use("/family", familyRoutes);
-app.use("/species", speciesRoutes);
+app.use("/spider", spiderRoutes);
 app.use(errors.error404);
 
 // DB RELATIONS
 
-Family.hasMany(Species);
-Species.belongsTo(Family);
+Family.hasMany(Spider, {
+  sourceKey: "id",
+  foreignKey: "familyId",
+  as: "spiders"
+});
 
-Species.hasMany(Image);
-Image.belongsTo(Species);
+Spider.hasMany(Image, {
+  sourceKey: "id",
+  foreignKey: "spiderId",
+  as: "images",
+});
 
 // RUNNING APP
 
@@ -63,19 +70,12 @@ db.sync({ force: true })
           behaviorDesc: "sieci plecie",
           resources: "https://pl.wikipedia.org/wiki/Krzy%C5%BCakowate",
         })
-        .then((species) => {
-          Image.bulkCreate([
+        .then((spider) => {
+          spider.createImage(
             {
               src: "/img/krzyzak.jpg",
               author: "Bartosz Orzechowski",
-              spiderId: 1,
-            },
-            {
-              src: "/img/krzyzak2.jpg",
-              author: "Bartosz Orzechowski",
-              spiderId: 1,
-            },
-          ]).then(() => {
+            }).then(() => {
             Family.create({
               name: "kwadratnikowate",
               latinName: "Tetragnathidae",
@@ -86,8 +86,8 @@ db.sync({ force: true })
                 .createSpider({
                   latinName: "Metellina segmentata",
                 })
-                .then((species) => {
-                  species.createImage({
+                .then((spider) => {
+                  spider.createImage({
                     src: "/img/pajak1.jpg",
                     author: "Bartosz Orzechowski",
                   });

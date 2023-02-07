@@ -29,7 +29,7 @@ import Image from './image';
 //   resources: Sequelize.STRING,
 // });
 
-class Spider extends Model<InferAttributes<Spider>, InferCreationAttributes<Spider>> {
+class Spider extends Model<InferAttributes<Spider, {omit: "images"}>, InferCreationAttributes<Spider, {omit: "images"}>> {
   declare id: CreationOptional<number>;
   declare name: string | null;
   declare latinName: string;
@@ -46,17 +46,20 @@ class Spider extends Model<InferAttributes<Spider>, InferCreationAttributes<Spid
   declare getImage: HasManyGetAssociationsMixin<Image>;
   declare addImage: HasManyAddAssociationMixin<Image, number>;
   declare addImages: HasManyAddAssociationsMixin<Image, number>;
-  declare setImage: HasManySetAssociationsMixin<Image, number>;
+  declare setImages: HasManySetAssociationsMixin<Image, number>;
   declare removeImage: HasManyRemoveAssociationMixin<Image, number>;
   declare removeImages: HasManyRemoveAssociationsMixin<Image, number>;
   declare hasImage: HasManyHasAssociationMixin<Image, number>;
   declare hasImages: HasManyHasAssociationsMixin<Image, number>;
-  declare countImage: HasManyCountAssociationsMixin;
-  declare createImage: HasManyCreateAssociationMixin<Image>;
+  declare countImages: HasManyCountAssociationsMixin;
+  declare createImage: HasManyCreateAssociationMixin<Image, "spiderId">;
 
+  // possible inclusions
   declare images?: NonAttribute<Image[]>;
 
-  declare public static associations: { images: Association<Spider, Image> };
+  declare static associations: {
+    images: Association<Spider, Image> 
+  };
 }
 
 Spider.init( 

@@ -7,9 +7,9 @@
   <h5>Gatunki</h5>
   <div class="spiders-list">
     <div class="row row-cols-auto">
-      <% for (spider of species) { %>
+      <% for (spider of spiders) { %>
         <div class="col">
-          <a class="spider-card-link text-dark" href="/species/<%= spider.id %>">
+          <a class="spider-card-link text-dark" href="/spider/<%= spider.id %>">
             <div class="card spider-card my-2" id="s-<%= spider.id %>">
             <img src="<%= spider.images[0].src %>" class="card-img-top" alt="author: <%= spider.images[0].author %>" >
             <div class="card-body">
@@ -32,10 +32,10 @@
     <hr class="small">
     <p><%= appearanceDesc %></p>
   <% } %>
-  <% if (lifestyleDesc) { %>
+  <% if (behaviorDesc) { %>
     <h5>Tryb życia</h5>
     <hr class="small">
-    <p><%= lifestyleDesc %></p>
+    <p><%= behaviorDesc %></p>
   <% } %>
   <% if (resources.length > 0) { %>
     <h5>Źródła zewnętrzne</h5>
