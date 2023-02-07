@@ -1,15 +1,19 @@
-const Family = require("../models/family");
-const Species = require("../models/species");
-const Image = require("../models/image");
-const err = require("../util/errorclg");
+import { Request, Response, NextFunction } from 'express';
 
-module.exports.getAbout = (req, res, next) => {
-  const id = +req.params.id;
-  let header;
-  let latinName;
-  let appearanceDesc;
-  let lifestyleDesc;
-  let resources;
+import Family from "../models/family";
+import Species from "../models/spider";
+import Image from "../models/image";
+import err from "../util/errorclg";
+
+export default {
+
+  getAbout: (req: Request, res: Response, next: NextFunction) => {
+    const id: number = +req.params.id;
+  let header: string;
+  let latinName: string;
+  let appearanceDesc: string;
+  let lifestyleDesc: string;
+  let resources: string;
   Family.findByPk(id)
     .then((family) => {
       if (!family) {
@@ -36,3 +40,5 @@ module.exports.getAbout = (req, res, next) => {
     })
     .catch(err);
 };
+
+}
