@@ -1,12 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from "express";
 
 import Spider from "../models/spider";
-import Image from "../models/image";
 
 export default {
   getAbout: (req: Request, res: Response, next: NextFunction) => {
-
-    Spider.findByPk(+req.params.id, { include: Spider.associations.images }).then((spider: Spider | null) => {
+    Spider.findByPk(+req.params.id, {
+      include: Spider.associations.images,
+    }).then((spider: Spider | null) => {
       if (!spider) {
         return next();
       }
@@ -20,5 +20,5 @@ export default {
         gallery: spider.images,
       });
     });
-  }
-}
+  },
+};

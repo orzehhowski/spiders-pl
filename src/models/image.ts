@@ -1,31 +1,20 @@
 import {
-  Association, DataTypes, HasManyAddAssociationMixin, HasManyCountAssociationsMixin,
-  HasManyCreateAssociationMixin, HasManyGetAssociationsMixin, HasManyHasAssociationMixin,
-  HasManySetAssociationsMixin, HasManyAddAssociationsMixin, HasManyHasAssociationsMixin,
-  HasManyRemoveAssociationMixin, HasManyRemoveAssociationsMixin, Model, ModelDefined, Optional,
-  Sequelize, InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute, ForeignKey,
-} from 'sequelize';
+  DataTypes,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional,
+  NonAttribute,
+  ForeignKey,
+} from "sequelize";
 
 import db from "../util/db";
 import Spider from "./spider";
 
-// const Image = db.define("image", {
-//   id: {
-//     type: Sequelize.INTEGER,
-//     primaryKey: true,
-//     allowNull: false,
-//     autoIncrement: true,
-//   },
-//   src: {
-//     type: Sequelize.STRING,
-//     allowNull: false,
-//   },
-//   author: Sequelize.STRING,
-// });
-
-// module.exports = Image;
-
-class Image extends Model<InferAttributes<Image>, InferCreationAttributes<Image>> {
+class Image extends Model<
+  InferAttributes<Image>,
+  InferCreationAttributes<Image>
+> {
   declare id: CreationOptional<number>;
   declare src: string;
   declare author: string;
@@ -53,12 +42,12 @@ Image.init(
       allowNull: true,
     },
     createdAt: DataTypes.DATE,
-    updatedAt: DataTypes.DATE
+    updatedAt: DataTypes.DATE,
   },
   {
-    tableName: 'images',
-    sequelize: db
+    tableName: "images",
+    sequelize: db,
   }
-)
+);
 
 export default Image;

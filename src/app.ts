@@ -1,4 +1,4 @@
-import dotenv from "dotenv"
+import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";
@@ -37,7 +37,7 @@ app.use(errors.error404);
 Family.hasMany(Spider, {
   sourceKey: "id",
   foreignKey: "familyId",
-  as: "spiders"
+  as: "spiders",
 });
 
 Spider.hasMany(Image, {
@@ -71,30 +71,31 @@ db.sync({ force: true })
           resources: "https://pl.wikipedia.org/wiki/Krzy%C5%BCakowate",
         })
         .then((spider) => {
-          spider.createImage(
-            {
+          spider
+            .createImage({
               src: "/img/krzyzak.jpg",
               author: "Bartosz Orzechowski",
-            }).then(() => {
-            Family.create({
-              name: "kwadratnikowate",
-              latinName: "Tetragnathidae",
-              image: "/img/pajak1.jpg",
-              imageAuthor: "Bartosz Orzechowski",
-            }).then((family) => {
-              family
-                .createSpider({
-                  latinName: "Metellina segmentata",
-                })
-                .then((spider) => {
-                  spider.createImage({
-                    src: "/img/pajak1.jpg",
-                    author: "Bartosz Orzechowski",
+            })
+            .then(() => {
+              Family.create({
+                name: "kwadratnikowate",
+                latinName: "Tetragnathidae",
+                image: "/img/pajak1.jpg",
+                imageAuthor: "Bartosz Orzechowski",
+              }).then((family) => {
+                family
+                  .createSpider({
+                    latinName: "Metellina segmentata",
+                  })
+                  .then((spider) => {
+                    spider.createImage({
+                      src: "/img/pajak1.jpg",
+                      author: "Bartosz Orzechowski",
+                    });
                   });
-                });
+              });
+              app.listen(3000);
             });
-            app.listen(3000);
-          });
         });
     });
   })

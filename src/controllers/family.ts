@@ -1,12 +1,10 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from "express";
 
 import Family from "../models/family";
 import Spider from "../models/spider";
-import Image from "../models/image";
 import err from "../util/errorclg";
 
 export default {
-
   getAbout: (req: Request, res: Response, next: NextFunction) => {
     const id: number = +req.params.id;
     let header: string | null;
@@ -41,5 +39,4 @@ export default {
       })
       .catch(err);
   },
-
-}
+};
