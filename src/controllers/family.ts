@@ -4,8 +4,8 @@ import Family from "../models/family";
 import Spider from "../models/spider";
 import err from "../util/errorclg";
 
-export default {
-  getAbout: (req: Request, res: Response, next: NextFunction) => {
+class FamilyController {
+  getAbout(req: Request, res: Response, next: NextFunction) {
     const id: number = +req.params.id;
     let header: string | null;
     let latinName: string;
@@ -38,5 +38,7 @@ export default {
         });
       })
       .catch(err);
-  },
-};
+  }
+}
+
+export default new FamilyController();

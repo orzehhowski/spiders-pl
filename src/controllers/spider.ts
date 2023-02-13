@@ -2,8 +2,8 @@ import { Request, Response, NextFunction } from "express";
 
 import Spider from "../models/spider";
 
-export default {
-  getAbout: (req: Request, res: Response, next: NextFunction) => {
+class SpiderController {
+  getAbout(req: Request, res: Response, next: NextFunction) {
     Spider.findByPk(+req.params.id, {
       include: Spider.associations.images,
     }).then((spider: Spider | null) => {
@@ -20,5 +20,7 @@ export default {
         gallery: spider.images,
       });
     });
-  },
-};
+  }
+}
+
+export default new SpiderController();
