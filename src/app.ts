@@ -15,7 +15,6 @@ import Image from "./models/image";
 import errorMiddleware from "./errors/errorMiddleware";
 
 const app = express();
-app.set("view engine", "ejs");
 
 const fileStorage = multer.diskStorage({
   destination(req, file, callback) {
