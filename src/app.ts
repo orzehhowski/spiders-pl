@@ -8,7 +8,7 @@ import bodyParser from "body-parser";
 
 import familyRoutes from "./routes/family";
 import spiderRoutes from "./routes/spider";
-import initalSeed from "./seed/initalSeed";
+import initalSeed from "./util/initalSeed";
 import Family from "./models/family";
 import Spider from "./models/spider";
 import Image from "./models/image";

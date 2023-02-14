@@ -1,5 +1,5 @@
 import Family from "../models/family";
-import db from "../util/db";
+import db from "./db";
 
 export default async () => {
   return db.sync({ force: true }).then(async () => {
