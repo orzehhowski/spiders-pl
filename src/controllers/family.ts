@@ -1,34 +1,29 @@
 import { Request, Response, NextFunction } from "express";
+import HttpError from "../errors/HttpError";
 
 import Family from "../models/family";
 import Spider from "../models/spider";
-import err from "../errors/errorclg";
 
 class FamilyController {
-  getAbout(req: Request, res: Response, next: NextFunction) {
+  get(req: Request, res: Response, next: NextFunction) {
     const id: number = +req.params.id;
-    let header: string | null;
-    let latinName: string;
-    let appearanceDesc: string | null;
-    let behaviorDesc: string | null;
-    let resources: Array<string>;
     Family.findByPk(id)
       .then((family: Family | null) => {
         if (!family) {
-          return next();
+          throw new HttpError(404, "family not found");
         }
-        header = family.name;
-        latinName = family.latinName;
-        appearanceDesc = family.appearanceDesc;
-        behaviorDesc = family.behaviorDesc;
-        resources = family.resources ? family.resources.split(" ") : [];
+        const name = family.name;
+        const latinName = family.latinName;
+        const appearanceDesc = family.appearanceDesc;
+        const behaviorDesc = family.behaviorDesc;
+        const resources = family.resources ? family.resources.split(" ") : [];
 
         return Spider.findAll({
           where: { familyId: family.id },
           include: Spider.associations.images,
         }).then((spiders) => {
-          res.render("main/familyPage", {
-            header,
+          res.status(200).json({
+            name,
             latinName,
             appearanceDesc,
             behaviorDesc,
@@ -37,7 +32,9 @@ class FamilyController {
           });
         });
       })
-      .catch(err);
+      .catch((err) => {
+        next(err);
+      });
   }
 }
 

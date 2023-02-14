@@ -3,6 +3,6 @@ import familyController from "../controllers/family";
 
 const router = Router();
 
-router.get("/:id", familyController.getAbout);
+router.get("/:id", familyController.get);
 
 export default router;
