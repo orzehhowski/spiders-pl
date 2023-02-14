@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Request, Response, NextFunction } from "express";
 import HttpError from "../errors/HttpError";
 
@@ -6,6 +7,18 @@ import Spider from "../models/spider";
 
 class FamilyController {
   get(req: Request, res: Response, next: NextFunction) {
+=======
+import { Request, Response, NextFunction } from 'express';
+
+import Family from "../models/family";
+import Spider from "../models/spider";
+import Image from "../models/image";
+import err from "../util/errorclg";
+
+export default {
+
+  getAbout: (req: Request, res: Response, next: NextFunction) => {
+>>>>>>> parent of 1e59d6e (elsint + prettier done)
     const id: number = +req.params.id;
     Family.findByPk(id)
       .then((family: Family | null) => {
@@ -32,6 +45,7 @@ class FamilyController {
           });
         });
       })
+<<<<<<< HEAD
       .catch((err) => {
         next(err);
       });
@@ -39,3 +53,9 @@ class FamilyController {
 }
 
 export default new FamilyController();
+=======
+      .catch(err);
+  },
+
+}
+>>>>>>> parent of 1e59d6e (elsint + prettier done)

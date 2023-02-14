@@ -1,30 +1,59 @@
 import {
-  Association,
-  DataTypes,
-  HasManyAddAssociationMixin,
-  HasManyCountAssociationsMixin,
-  HasManyCreateAssociationMixin,
-  HasManyGetAssociationsMixin,
-  HasManyHasAssociationMixin,
-  HasManySetAssociationsMixin,
-  HasManyAddAssociationsMixin,
-  HasManyHasAssociationsMixin,
-  HasManyRemoveAssociationMixin,
-  HasManyRemoveAssociationsMixin,
-  Model,
-  InferAttributes,
-  InferCreationAttributes,
-  CreationOptional,
-  NonAttribute,
-} from "sequelize";
+  Association, DataTypes, 
+  HasManyAddAssociationMixin, HasManyCountAssociationsMixin,
+  HasManyCreateAssociationMixin, HasManyGetAssociationsMixin, 
+  HasManyHasAssociationMixin, HasManySetAssociationsMixin, 
+  HasManyAddAssociationsMixin, HasManyHasAssociationsMixin,
+  HasManyRemoveAssociationMixin, HasManyRemoveAssociationsMixin, 
+  Model, InferAttributes, InferCreationAttributes, 
+  CreationOptional, NonAttribute, 
+} from 'sequelize';
 
 import db from "../util/db";
 import Spider from "./spider";
 
-class Family extends Model<
-  InferAttributes<Family>,
-  InferCreationAttributes<Family>
-> {
+// interface FamilyAttributes {
+//   id: number,
+//   name: string,
+//   latinName: string,
+//   appearanceDesc: string,
+//   lifestyleDesc: string,
+//   resources: string,
+//   image: string,
+//   imageAuthor: string,
+
+//   createSpecies: HasManyCreateAssociationMixin<Species, "familyId">
+// }
+
+// type FamilyCreationAttributes = Optional<FamilyAttributes, 'id'>;
+
+// const Family: ModelDefined<FamilyAttributes, FamilyCreationAttributes> = db.define("family", 
+//   {
+//     id: {
+//       type: DataTypes.INTEGER,
+//       primaryKey: true,
+//       allowNull: false,
+//       autoIncrement: true,
+//     },
+//     name: {
+//       type: new DataTypes.STRING,
+//       allowNull: true,
+//       unique: true,
+//     },
+//     latinName: {
+//       type: new DataTypes.STRING,
+//       allowNull: false,
+//       unique: true,
+//     },
+//     appearanceDesc: new DataTypes.TEXT("long"),
+//     lifestyleDesc: new DataTypes.TEXT("long"),
+//     resources: new DataTypes.STRING(1024),
+//     image: new DataTypes.STRING,
+//     imageAuthor: new DataTypes.STRING,
+//   }, 
+//   {tableName: "families"});
+
+class Family extends Model<InferAttributes<Family>, InferCreationAttributes<Family>> {
   declare id: CreationOptional<number>;
   declare name: string | null;
   declare latinName: string;
@@ -53,7 +82,7 @@ class Family extends Model<
   declare static associations: { spiders: Association<Family, Spider> };
 }
 
-Family.init(
+Family.init( 
   {
     id: {
       type: DataTypes.INTEGER,
@@ -77,12 +106,11 @@ Family.init(
     image: DataTypes.STRING,
     imageAuthor: DataTypes.STRING,
     createdAt: DataTypes.DATE,
-    updatedAt: DataTypes.DATE,
-  },
+    updatedAt: DataTypes.DATE
+  }, 
   {
-    tableName: "families",
-    sequelize: db,
-  }
-);
+    tableName: "families", 
+    sequelize: db
+  });
 
 export default Family;

@@ -1,4 +1,4 @@
-import dotenv from "dotenv";
+import dotenv from "dotenv"
 dotenv.config();
 
 import express, { Request, Response } from "express";
@@ -82,7 +82,7 @@ app.use(errorMiddleware);
 Family.hasMany(Spider, {
   sourceKey: "id",
   foreignKey: "familyId",
-  as: "spiders",
+  as: "spiders"
 });
 
 Spider.hasMany(Image, {
@@ -96,6 +96,7 @@ Spider.hasMany(Image, {
 db.sync()
   // db.sync({ force: true })
   .then(async () => {
+<<<<<<< HEAD
     // await Family.create({
     //   name: "krzyżakowate",
     //   latinName: "araneidae",
@@ -143,6 +144,54 @@ db.sync()
     // });
     //       });
     //   });
+=======
+    await Family.create({
+      name: "krzyżakowate",
+      latinName: "araneidae",
+      appearanceDesc:
+        "majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krpie majom <br/>krzyz upie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na majomrzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz dupie",
+      behaviorDesc: "robią dwuwymiarowe sieci",
+      image: "/img/krzyzak.jpg",
+      imageAuthor: "Bartosz Orzechowski",
+      resources:
+        "https://pl.wikipedia.org/wiki/Krzy%C5%BCakowate https://arages.de/files/checklist2004_araneae.pdf",
+    }).then((family) => {
+      family
+        .createSpider({
+          name: "krzyzak ogrodowy",
+          latinName: "araneidae ogrodae",
+          appearanceDesc: "ladny jest",
+          behaviorDesc: "sieci plecie",
+          resources: "https://pl.wikipedia.org/wiki/Krzy%C5%BCakowate",
+        })
+        .then((spider) => {
+          spider.createImage(
+            {
+              src: "/img/krzyzak.jpg",
+              author: "Bartosz Orzechowski",
+            }).then(() => {
+            Family.create({
+              name: "kwadratnikowate",
+              latinName: "Tetragnathidae",
+              image: "/img/pajak1.jpg",
+              imageAuthor: "Bartosz Orzechowski",
+            }).then((family) => {
+              family
+                .createSpider({
+                  latinName: "Metellina segmentata",
+                })
+                .then((spider) => {
+                  spider.createImage({
+                    src: "/img/pajak1.jpg",
+                    author: "Bartosz Orzechowski",
+                  });
+                });
+            });
+            app.listen(3000);
+          });
+        });
+    });
+>>>>>>> parent of 1e59d6e (elsint + prettier done)
   })
   .catch((err) => {
     console.log(err);

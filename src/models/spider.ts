@@ -1,32 +1,35 @@
 import {
-  Association,
-  DataTypes,
-  HasManyAddAssociationMixin,
-  HasManyCountAssociationsMixin,
-  HasManyCreateAssociationMixin,
-  HasManyGetAssociationsMixin,
-  HasManyHasAssociationMixin,
-  HasManySetAssociationsMixin,
-  HasManyAddAssociationsMixin,
-  HasManyHasAssociationsMixin,
-  HasManyRemoveAssociationMixin,
-  HasManyRemoveAssociationsMixin,
-  Model,
-  InferAttributes,
-  InferCreationAttributes,
-  CreationOptional,
-  NonAttribute,
-  ForeignKey,
-} from "sequelize";
+  Association, DataTypes, HasManyAddAssociationMixin, HasManyCountAssociationsMixin,
+  HasManyCreateAssociationMixin, HasManyGetAssociationsMixin, HasManyHasAssociationMixin,
+  HasManySetAssociationsMixin, HasManyAddAssociationsMixin, HasManyHasAssociationsMixin,
+  HasManyRemoveAssociationMixin, HasManyRemoveAssociationsMixin, Model, ModelDefined, Optional,
+  Sequelize, InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute, ForeignKey,
+} from 'sequelize';
 
 import db from "../util/db";
-import Family from "./family";
-import Image from "./image";
+import Family from './family';
+import Image from './image';
 
-class Spider extends Model<
-  InferAttributes<Spider, { omit: "images" }>,
-  InferCreationAttributes<Spider, { omit: "images" }>
-> {
+// const Species = db.define("species", {
+//   id: {
+//     type: Sequelize.INTEGER,
+//     primaryKey: true,
+//     allowNull: false,
+//     autoIncrement: true,
+//   },
+//   name: Sequelize.STRING,
+//   latinName: {
+//     type: Sequelize.STRING,
+//     allowNull: false,
+//     unique: true,
+//   },
+//   maxSizeMilimeters: Sequelize.INTEGER,
+//   appearanceDesc: Sequelize.TEXT("long"),
+//   lifestyleDesc: Sequelize.TEXT("long"),
+//   resources: Sequelize.STRING,
+// });
+
+class Spider extends Model<InferAttributes<Spider, {omit: "images"}>, InferCreationAttributes<Spider, {omit: "images"}>> {
   declare id: CreationOptional<number>;
   declare name: string | null;
   declare latinName: string;
@@ -34,7 +37,7 @@ class Spider extends Model<
   declare behaviorDesc: string | null;
   declare resources: string | null;
 
-  declare familyId: ForeignKey<Family["id"]>;
+  declare familyId: ForeignKey<Family['id']>;
   declare family?: NonAttribute<Family>;
 
   declare createdAt: CreationOptional<Date>;
@@ -55,11 +58,11 @@ class Spider extends Model<
   declare images?: NonAttribute<Image[]>;
 
   declare static associations: {
-    images: Association<Spider, Image>;
+    images: Association<Spider, Image> 
   };
 }
 
-Spider.init(
+Spider.init( 
   {
     id: {
       type: DataTypes.INTEGER,
@@ -81,12 +84,11 @@ Spider.init(
     behaviorDesc: new DataTypes.TEXT("long"),
     resources: new DataTypes.STRING(1024),
     createdAt: DataTypes.DATE,
-    updatedAt: DataTypes.DATE,
-  },
+    updatedAt: DataTypes.DATE
+  }, 
   {
-    tableName: "spiders",
-    sequelize: db,
-  }
-);
+    tableName: "spiders", 
+    sequelize: db
+  });
 
 export default Spider;
