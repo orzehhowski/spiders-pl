@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 
 import Family from "../models/family";
 import Spider from "../models/spider";
-import err from "../util/errorclg";
+import err from "../errors/errorclg";
 
 class FamilyController {
   getAbout(req: Request, res: Response, next: NextFunction) {

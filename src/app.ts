@@ -3,6 +3,8 @@ dotenv.config();
 
 import express from "express";
 import path from "path";
+import multer from "multer";
+import bodyParser from "body-parser";
 
 import mainRoutes from "./routes/main";
 import familyRoutes from "./routes/family";
@@ -14,8 +16,16 @@ import Spider from "./models/spider";
 import Image from "./models/image";
 
 const app = express();
-
 app.set("view engine", "ejs");
+
+const fileStorage = multer.diskStorage({
+  destination(req, file, callback) {
+    callback(null, path.join("src", "public", "img"));
+  },
+  filename(req, file, callback) {
+    callback(null, new Date().toISOString() + "-" + file.originalname);
+  },
+});
 
 // MIDDLEWARES
 
@@ -26,7 +36,36 @@ app.use((req, res, next) => {
   next();
 });
 
+// body parsers
+app.use(bodyParser.json());
+app.use(
+  multer({
+    storage: fileStorage,
+    fileFilter: (req, file, callback) => {
+      if (
+        file.mimetype === "image/png" ||
+        file.mimetype === "image/jpeg" ||
+        file.mimetype === "image/jpg"
+      ) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
+  }).single("image")
+);
+
+// static folders
 app.use(express.static(path.join(__dirname, "public")));
+
+// CORS
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
+
 app.use(mainRoutes);
 app.use("/family", familyRoutes);
 app.use("/spider", spiderRoutes);
@@ -94,7 +133,7 @@ db.sync({ force: true })
                     });
                   });
               });
-              app.listen(3002);
+              app.listen(8080);
             });
         });
     });

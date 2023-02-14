@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 import Family from "../models/family";
-import err from "../util/errorclg";
+import err from "../errors/errorclg";
 
 class MainController {
   getHome(req: Request, res: Response) {
