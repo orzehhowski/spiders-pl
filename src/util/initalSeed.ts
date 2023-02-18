@@ -43,7 +43,7 @@ export default async () => {
     });
 
     await secondSpider.createImage({
-      src: "/img/pajak1.jpg",
+      src: "img/pajak1.jpg",
       author: "Bartosz Orzechowski",
     });
   });

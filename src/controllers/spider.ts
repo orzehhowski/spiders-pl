@@ -1,8 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import HttpError from "../errors/HttpError";
+import fs from "fs";
+import path from "path";
 
 import Spider from "../models/spider";
 import Family from "../models/family";
+import Image from "../models/image";
 
 interface SpiderInfo {
   name: string | null;
@@ -87,7 +90,7 @@ class SpiderController {
   put(req: Request, res: Response, next: NextFunction) {
     // add validation
 
-    const spiderId = req.body.id;
+    const spiderId: number = +req.params.id;
     const latinName = req.body.latinName || "";
     Spider.findOne({ where: { latinName: latinName } })
       .then((spider) => {
@@ -137,6 +140,41 @@ class SpiderController {
         res
           .status(200)
           .json({ message: "Spider Info updated", spider: spider });
+      })
+      .catch((err) => {
+        next(err);
+      });
+  }
+
+  delete(req: Request, res: Response, next: NextFunction) {
+    const id: number = +req.params.id;
+    const includeImages: boolean = req.query.includeImages ? true : false;
+
+    Spider.findByPk(id, {
+      include: includeImages ? Spider.associations.images : undefined,
+    })
+      .then((spider) => {
+        if (!spider) {
+          throw new HttpError(404, "spider not found");
+        }
+        if (!includeImages) {
+          return spider.destroy();
+        } else {
+          spider.images?.forEach((img) => {
+            const imagePath = path.join(__dirname, "..", "public", img.src);
+            if (fs.existsSync(imagePath)) {
+              fs.unlink(imagePath, (err) => {
+                err && next(err);
+              });
+            }
+          });
+          return Image.destroy({ where: { spiderId: spider.id } }).then(() => {
+            return spider.destroy();
+          });
+        }
+      })
+      .then(() => {
+        res.status(200).json({ message: "spider deleted" });
       })
       .catch((err) => {
         next(err);
