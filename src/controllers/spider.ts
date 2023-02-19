@@ -20,7 +20,7 @@ class SpiderController {
     Spider.findByPk(+req.params.id, {
       include: Spider.associations.images,
     })
-      .then((spider: Spider | null) => {
+      .then((spider) => {
         if (!spider) {
           throw new HttpError(404, "Spider not found");
         }
