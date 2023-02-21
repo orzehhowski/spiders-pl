@@ -13,7 +13,7 @@ class imageController {
       const image = await Image.findByPk(id);
 
       if (!image) {
-        throw new HttpError(404, "image not found");
+        throw new HttpError(404, "Image not found.");
       }
 
       res.status(200).json(image);
@@ -26,7 +26,7 @@ class imageController {
     //add validation
     try {
       if (!req.file) {
-        throw new HttpError(422, "image not provided");
+        throw new HttpError(422, "Image not provided.");
       }
 
       const src = req.file.path.replace("src/public/", "");
@@ -34,14 +34,14 @@ class imageController {
 
       const spider = await Spider.findByPk(spiderId);
       if (!spider) {
-        throw new HttpError(404, "spider not found");
+        throw new HttpError(404, "Spider not found.");
       }
 
       await spider.createImage({ src, author });
 
       res
         .status(201)
-        .json({ message: "image created", image: { src, author, spiderId } });
+        .json({ message: "Image created.", image: { src, author, spiderId } });
     } catch (err) {
       next(err);
     }
@@ -57,7 +57,7 @@ class imageController {
       const image = await Image.findByPk(id);
 
       if (!image) {
-        throw new HttpError(404, "Image not found");
+        throw new HttpError(404, "Image not found.");
       }
 
       if (req.file) {
@@ -69,7 +69,7 @@ class imageController {
 
       await image.save();
 
-      res.status(200).json({ message: "image updated", image });
+      res.status(200).json({ message: "Image updated.", image });
     } catch (err) {
       next(err);
     }
@@ -82,12 +82,12 @@ class imageController {
       const image = await Image.findByPk(id);
 
       if (!image) {
-        throw new HttpError(404, "image not found");
+        throw new HttpError(404, "Image not found.");
       }
       console.log(image.src);
       unlinkImg(image.src);
       await image.destroy();
-      res.status(200).json({ message: "image deleted" });
+      res.status(200).json({ message: "Image deleted." });
     } catch (err) {
       next(err);
     }

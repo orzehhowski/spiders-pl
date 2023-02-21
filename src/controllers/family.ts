@@ -23,7 +23,7 @@ class FamilyController {
       const family = await Family.findByPk(id);
 
       if (!family) {
-        throw new HttpError(404, "family not found");
+        throw new HttpError(404, "Family not found.");
       }
 
       const name = family.name;
@@ -69,7 +69,7 @@ class FamilyController {
 
     try {
       if (!req.file) {
-        throw new HttpError(422, "image is required");
+        throw new HttpError(422, "Image is required.");
       }
       const src = req.file.path.replace("src/public/", "");
 
@@ -80,6 +80,7 @@ class FamilyController {
       });
       await newFamily.save();
       res.status(201).json({
+        message: "Family created.",
         family: { ...req.body, resources: resourcesStr, image: src },
       });
     } catch (err) {
@@ -93,7 +94,7 @@ class FamilyController {
     try {
       const family = await Family.findByPk(+req.params.id);
       if (!family) {
-        throw new HttpError(404, "family not found");
+        throw new HttpError(404, "Family not found.");
       }
 
       // restore resources to string
@@ -120,7 +121,7 @@ class FamilyController {
 
       await family.save();
 
-      res.status(200).json({ family: family });
+      res.status(200).json({ message: "Family updated.", family });
     } catch (err) {
       next(err);
     }
@@ -134,7 +135,7 @@ class FamilyController {
         include: Family.associations.spiders,
       });
       if (!family) {
-        throw new HttpError(404, "family not found");
+        throw new HttpError(404, "Family not found.");
       }
       if (family.spiders && family.spiders?.length > 0) {
         throw new HttpError(422, "You can't delete family containing spiders!");
@@ -144,7 +145,7 @@ class FamilyController {
 
       await family.destroy();
 
-      res.status(200).send();
+      res.status(200).json({ message: "Family deleted." });
     } catch (err) {
       next(err);
     }

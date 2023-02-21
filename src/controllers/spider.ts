@@ -13,7 +13,7 @@ class SpiderController {
         include: Spider.associations.images,
       });
       if (!spider) {
-        throw new HttpError(404, "Spider not found");
+        throw new HttpError(404, "Spider not found.");
       }
       res.status(200).json(spider);
     } catch (err) {
@@ -41,7 +41,7 @@ class SpiderController {
 
     try {
       if (!req.file) {
-        throw new HttpError(422, "Image is required");
+        throw new HttpError(422, "Image is required.");
       }
 
       const src = req.file.path.replace("src/public/", "") || "";
@@ -52,7 +52,7 @@ class SpiderController {
       };
       const family = await Family.findByPk(familyId);
       if (!family) {
-        throw new HttpError(404, "family not found");
+        throw new HttpError(404, "Family not found.");
       }
       const spider = await family.createSpider({
         ...req.body,
@@ -62,7 +62,7 @@ class SpiderController {
       await spider.createImage(imageInfo);
 
       res.status(201).json({
-        message: "Spider created",
+        message: "Spider created.",
         spider: { ...spider.dataValues, image: imageInfo },
       });
     } catch (err) {
@@ -83,13 +83,13 @@ class SpiderController {
         if (isNameTaken) {
           throw new HttpError(
             422,
-            "Spider with this latin name allready exists"
+            "Spider with this latin name allready exists."
           );
         }
       }
       const spider = await Spider.findByPk(spiderId);
       if (!spider) {
-        throw new HttpError(404, "Spider not found");
+        throw new HttpError(404, "Spider not found.");
       }
 
       // restore resources to string
@@ -110,7 +110,7 @@ class SpiderController {
       Object.assign(spider, req.body, { resources: resourcesStr });
       await spider.save();
 
-      res.status(200).json({ message: "Spider Info updated", spider: spider });
+      res.status(200).json({ message: "Spider updated.", spider: spider });
     } catch (err) {
       next(err);
     }
@@ -126,7 +126,7 @@ class SpiderController {
       });
 
       if (!spider) {
-        throw new HttpError(404, "spider not found");
+        throw new HttpError(404, "Spider not found.");
       }
 
       if (includeImages) {
@@ -138,7 +138,7 @@ class SpiderController {
 
       await spider.destroy();
 
-      res.status(200).json({ message: "spider deleted" });
+      res.status(200).json({ message: "Spider deleted." });
     } catch (err) {
       next(err);
     }

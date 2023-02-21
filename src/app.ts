@@ -74,7 +74,7 @@ app.use("/image", imageRoutes);
 // ERROR MIDDLEWARES
 
 app.use((req: Request, res: Response) => {
-  res.status(404).json({ message: "Not found" });
+  res.status(404).json({ message: "Not found." });
 });
 app.use(errorMiddleware);
 
