@@ -8,6 +8,7 @@ import bodyParser from "body-parser";
 
 import familyRoutes from "./routes/family";
 import spiderRoutes from "./routes/spider";
+import imageRoutes from "./routes/image";
 import initalSeed from "./util/initalSeed";
 import Family from "./models/family";
 import Spider from "./models/spider";
@@ -68,6 +69,7 @@ app.use((req, res, next) => {
 
 app.use("/family", familyRoutes);
 app.use("/spider", spiderRoutes);
+app.use("/image", imageRoutes);
 
 // ERROR MIDDLEWARES
 
