@@ -1,12 +1,14 @@
 import { Router } from "express";
+
+import excludeFile from "../middlewares/excludeFile";
 import familyController from "../controllers/family";
 
 const router = Router();
 
-router.get("/", familyController.getAll);
-router.get("/:id", familyController.get);
+router.get("/", excludeFile, familyController.getAll);
+router.get("/:id", excludeFile, familyController.get);
 router.post("/", familyController.post);
 router.put("/:id", familyController.put);
-router.delete("/:id", familyController.delete);
+router.delete("/:id", excludeFile, familyController.delete);
 
 export default router;
