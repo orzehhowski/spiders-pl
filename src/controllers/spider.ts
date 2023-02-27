@@ -15,6 +15,9 @@ class SpiderController {
       if (!spider) {
         throw new HttpError(404, "Spider not found.");
       }
+      Object.assign(spider, {
+        resources: spider.resources ? spider.resources.split(" ") : [],
+      });
       res.status(200).json(spider);
     } catch (err) {
       next(err);
