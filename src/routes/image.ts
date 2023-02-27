@@ -9,9 +9,9 @@ const router = Router();
 
 router.get(
   "/:id",
+  excludeFile,
   param("id", "ID must be a number!").isNumeric(),
   checkValidation,
-  excludeFile,
   imageController.get
 );
 router.post("/", imageController.post);
@@ -23,9 +23,9 @@ router.put(
 );
 router.delete(
   "/:id",
+  excludeFile,
   param("id", "ID must be a number!").isNumeric(),
   checkValidation,
-  excludeFile,
   imageController.delete
 );
 
