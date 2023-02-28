@@ -1,53 +1,36 @@
 import {
-  DataTypes,
+  Table,
+  Column,
   Model,
-  InferAttributes,
-  InferCreationAttributes,
-  CreationOptional,
-  NonAttribute,
+  CreatedAt,
+  UpdatedAt,
   ForeignKey,
-} from "sequelize";
-
-import db from "../util/db";
+  AllowNull,
+  Unique,
+  BelongsTo,
+} from "sequelize-typescript";
 import Spider from "./spider";
 
-class Image extends Model<
-  InferAttributes<Image>,
-  InferCreationAttributes<Image>
-> {
-  declare id: CreationOptional<number>;
-  declare src: string;
-  declare author: string;
+@Table
+export default class Image extends Model {
+  @AllowNull(false)
+  @Unique(true)
+  @Column
+  src!: string;
 
-  declare spiderId: ForeignKey<Spider["id"]>;
-  declare spider?: NonAttribute<Spider>;
+  @Column
+  author?: string;
 
-  declare createdAt: CreationOptional<Date>;
-  declare updatedAt: CreationOptional<Date>;
+  @ForeignKey(() => Spider)
+  @Column
+  spiderId!: number;
+
+  @BelongsTo(() => Spider)
+  spider?: Spider;
+
+  @CreatedAt
+  createdAt?: string;
+
+  @UpdatedAt
+  updatedAt?: string;
 }
-
-Image.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    src: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    author: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    createdAt: DataTypes.DATE,
-    updatedAt: DataTypes.DATE,
-  },
-  {
-    tableName: "images",
-    sequelize: db,
-  }
-);
-
-export default Image;

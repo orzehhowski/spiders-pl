@@ -98,7 +98,7 @@ class FamilyController {
       }
 
       // restore resources to string
-      let resourcesStr: string | null;
+      let resourcesStr: string | null | undefined;
       if (typeof req.body.resources === "string") {
         resourcesStr = req.body.resources;
       } else if (req.body.resources === undefined) {

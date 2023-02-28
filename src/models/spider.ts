@@ -1,92 +1,52 @@
 import {
-  Association,
-  DataTypes,
-  HasManyAddAssociationMixin,
-  HasManyCountAssociationsMixin,
-  HasManyCreateAssociationMixin,
-  HasManyGetAssociationsMixin,
-  HasManyHasAssociationMixin,
-  HasManySetAssociationsMixin,
-  HasManyAddAssociationsMixin,
-  HasManyHasAssociationsMixin,
-  HasManyRemoveAssociationMixin,
-  HasManyRemoveAssociationsMixin,
+  Table,
+  Column,
   Model,
-  InferAttributes,
-  InferCreationAttributes,
-  CreationOptional,
-  NonAttribute,
+  DataType,
+  CreatedAt,
+  UpdatedAt,
   ForeignKey,
-} from "sequelize";
-
-import db from "../util/db";
+  AllowNull,
+  Unique,
+  BelongsTo,
+  HasMany,
+} from "sequelize-typescript";
 import Family from "./family";
 import Image from "./image";
 
-class Spider extends Model<
-  InferAttributes<Spider, { omit: "images" }>,
-  InferCreationAttributes<Spider, { omit: "images" }>
-> {
-  declare id: CreationOptional<number>;
-  declare name: string | null;
-  declare latinName: string;
-  declare appearanceDesc: string | null;
-  declare behaviorDesc: string | null;
-  declare resources: string | null;
+@Table
+export default class Spider extends Model {
+  @Unique(true)
+  @Column
+  name?: string;
 
-  declare familyId: ForeignKey<Family["id"]>;
-  declare family?: NonAttribute<Family>;
+  @AllowNull(false)
+  @Unique(true)
+  @Column
+  latinName!: string;
 
-  declare createdAt: CreationOptional<Date>;
-  declare updatedAt: CreationOptional<Date>;
+  @Column(DataType.TEXT)
+  appearanceDesc?: string;
 
-  declare getImage: HasManyGetAssociationsMixin<Image>;
-  declare addImage: HasManyAddAssociationMixin<Image, number>;
-  declare addImages: HasManyAddAssociationsMixin<Image, number>;
-  declare setImages: HasManySetAssociationsMixin<Image, number>;
-  declare removeImage: HasManyRemoveAssociationMixin<Image, number>;
-  declare removeImages: HasManyRemoveAssociationsMixin<Image, number>;
-  declare hasImage: HasManyHasAssociationMixin<Image, number>;
-  declare hasImages: HasManyHasAssociationsMixin<Image, number>;
-  declare countImages: HasManyCountAssociationsMixin;
-  declare createImage: HasManyCreateAssociationMixin<Image, "spiderId">;
+  @Column(DataType.TEXT)
+  behaviorDesc?: string;
 
-  // possible inclusions
-  declare images?: NonAttribute<Image[]>;
+  @Column(DataType.TEXT)
+  resources?: string;
 
-  declare static associations: {
-    images: Association<Spider, Image>;
-  };
+  @ForeignKey(() => Family)
+  @Column
+  familyId!: number;
+
+  @BelongsTo(() => Family)
+  family?: Family;
+
+  @HasMany(() => Image)
+  images?: Image[];
+
+  @CreatedAt
+  createdAt?: string;
+
+  @UpdatedAt
+  updatedAt?: string;
 }
-
-Spider.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      allowNull: false,
-      autoIncrement: true,
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      unique: true,
-    },
-    latinName: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
-    appearanceDesc: new DataTypes.TEXT("long"),
-    behaviorDesc: new DataTypes.TEXT("long"),
-    resources: new DataTypes.STRING(1024),
-    createdAt: DataTypes.DATE,
-    updatedAt: DataTypes.DATE,
-  },
-  {
-    tableName: "spiders",
-    sequelize: db,
-  }
-);
-
-export default Spider;

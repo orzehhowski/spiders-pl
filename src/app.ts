@@ -10,9 +10,6 @@ import familyRoutes from "./routes/family";
 import spiderRoutes from "./routes/spider";
 import imageRoutes from "./routes/image";
 import initalSeed from "./util/initalSeed";
-import Family from "./models/family";
-import Spider from "./models/spider";
-import Image from "./models/image";
 import errorMiddleware from "./errors/errorMiddleware";
 
 const app = express();
@@ -24,15 +21,6 @@ const fileStorage = multer.diskStorage({
   filename(req, file, callback) {
     callback(null, new Date().toISOString() + "-" + file.originalname);
   },
-});
-
-// MIDDLEWARES
-
-app.use((req, res, next) => {
-  res.locals = {
-    title: "",
-  };
-  next();
 });
 
 // body parsers
@@ -77,20 +65,6 @@ app.use((req: Request, res: Response) => {
   res.status(404).json({ message: "Not found." });
 });
 app.use(errorMiddleware);
-
-// DB RELATIONS
-
-Family.hasMany(Spider, {
-  sourceKey: "id",
-  foreignKey: "familyId",
-  as: "spiders",
-});
-
-Spider.hasMany(Image, {
-  sourceKey: "id",
-  foreignKey: "spiderId",
-  as: "images",
-});
 
 // RUNNING APP
 

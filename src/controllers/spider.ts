@@ -57,12 +57,12 @@ class SpiderController {
       if (!family) {
         throw new HttpError(404, "Family not found.");
       }
-      const spider = await family.createSpider({
+      const spider = await family.$create("spider", {
         ...req.body,
         resources: resourcesStr,
       });
 
-      await spider.createImage(imageInfo);
+      await spider.$create("image", imageInfo);
 
       res.status(201).json({
         message: "Spider created.",
@@ -96,7 +96,7 @@ class SpiderController {
       }
 
       // restore resources to string
-      let resourcesStr: string | null;
+      let resourcesStr: string | null | undefined;
       if (typeof req.body.resources === "string") {
         resourcesStr = req.body.resources;
       } else if (req.body.resources === undefined) {

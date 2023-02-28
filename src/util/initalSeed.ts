@@ -15,7 +15,7 @@ export default async () => {
         "https://pl.wikipedia.org/wiki/Krzy%C5%BCakowate https://arages.de/files/checklist2004_araneae.pdf",
     });
 
-    const firstSpider = await firstFamily.createSpider({
+    const firstSpider = await firstFamily.$create("spider", {
       name: "krzyzak ogrodowy",
       latinName: "araneidae ogrodae",
       appearanceDesc: "ladny jest",
@@ -23,11 +23,11 @@ export default async () => {
       resources: "https://pl.wikipedia.org/wiki/Krzy%C5%BCakowate",
     });
 
-    await firstSpider.createImage({
+    await firstSpider.$create("image", {
       src: "img/krzyzak.jpg",
       author: "Bartosz Orzechowski",
     });
-    await firstSpider.createImage({
+    await firstSpider.$create("image", {
       src: "img/krzyzak2.jpg",
       author: "Bartosz Orzechowski",
     });
@@ -38,11 +38,11 @@ export default async () => {
       image: "img/pajak1.jpg",
       imageAuthor: "Bartosz Orzechowski",
     });
-    const secondSpider = await secondFamily.createSpider({
+    const secondSpider = await secondFamily.$create("spider", {
       latinName: "Metellina segmentata",
     });
 
-    await secondSpider.createImage({
+    await secondSpider.$create("image", {
       src: "img/pajak1.jpg",
       author: "Bartosz Orzechowski",
     });

@@ -37,7 +37,7 @@ class imageController {
         throw new HttpError(404, "Spider not found.");
       }
 
-      await spider.createImage({ src, author });
+      await spider.$create("image", { src, author });
 
       res
         .status(201)
