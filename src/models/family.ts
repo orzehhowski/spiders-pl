@@ -8,8 +8,11 @@ import {
   HasMany,
   AllowNull,
   Unique,
+  ForeignKey,
+  BelongsTo,
 } from "sequelize-typescript";
 import Spider from "./spider";
+import User from "./user";
 
 @Table
 export default class Family extends Model {
@@ -39,6 +42,13 @@ export default class Family extends Model {
 
   @HasMany(() => Spider)
   spiders?: Spider[];
+
+  @ForeignKey(() => User)
+  @Column
+  userId!: number;
+
+  @BelongsTo(() => User)
+  user?: User;
 
   @CreatedAt
   createdAt?: string;

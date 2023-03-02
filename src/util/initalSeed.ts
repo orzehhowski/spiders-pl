@@ -1,9 +1,15 @@
 import Family from "../models/family";
+import User from "../models/user";
 import db from "./db";
 
 export default async () => {
   return db.sync({ force: true }).then(async () => {
-    const firstFamily = await Family.create({
+    const user = await User.create({
+      username: "admin",
+      email: "admin@admin.pl",
+      passwordHash: "abcd",
+    });
+    const firstFamily = await user.$create("family", {
       name: "krzyżakowate",
       latinName: "araneidae",
       appearanceDesc:
@@ -21,6 +27,7 @@ export default async () => {
       appearanceDesc: "ladny jest",
       behaviorDesc: "sieci plecie",
       resources: "https://pl.wikipedia.org/wiki/Krzy%C5%BCakowate",
+      userId: user.id,
     });
 
     await firstSpider.$create("image", {
@@ -32,7 +39,7 @@ export default async () => {
       author: "Bartosz Orzechowski",
     });
 
-    const secondFamily = await Family.create({
+    const secondFamily = await user.$create("family", {
       name: "kwadratnikowate",
       latinName: "Tetragnathidae",
       image: "img/pajak1.jpg",
@@ -40,6 +47,7 @@ export default async () => {
     });
     const secondSpider = await secondFamily.$create("spider", {
       latinName: "Metellina segmentata",
+      userId: user.id,
     });
 
     await secondSpider.$create("image", {

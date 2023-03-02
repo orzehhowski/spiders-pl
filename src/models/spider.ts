@@ -13,6 +13,7 @@ import {
 } from "sequelize-typescript";
 import Family from "./family";
 import Image from "./image";
+import User from "./user";
 
 @Table
 export default class Spider extends Model {
@@ -33,6 +34,13 @@ export default class Spider extends Model {
 
   @Column(DataType.TEXT)
   resources?: string;
+
+  @ForeignKey(() => User)
+  @Column
+  userId!: number;
+
+  @BelongsTo(() => User)
+  user?: User;
 
   @ForeignKey(() => Family)
   @Column
