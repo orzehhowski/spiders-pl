@@ -1,8 +1,17 @@
 import { Request, Response, NextFunction } from "express";
-import { hash } from "bcryptjs";
+import { hash, compare } from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 import HttpError from "../errors/HttpError";
 import User from "../models/user";
+
+const generateToken = (email: string, userId: number) => {
+  return jwt.sign(
+    { email, userId },
+    process.env.SECRET_KEY || "killer-long-and-str0ng_SeCrEtKEYYYYYYYYY",
+    { expiresIn: "12h" }
+  );
+};
 
 class AuthController {
   async singup(req: Request, res: Response, next: NextFunction) {
@@ -23,9 +32,35 @@ class AuthController {
 
       const newUser = await User.create({ passwordHash, username, email });
 
-      // login user !!!
+      const token = generateToken(email, newUser.id);
 
-      res.status(201).json({ message: "Account created!", user: newUser });
+      res
+        .status(201)
+        .json({ message: "Account created.", userId: newUser.id, token });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async login(req: Request, res: Response, next: NextFunction) {
+    const { password, email } = req.body;
+    try {
+      const user = await User.findOne({ where: { email } });
+
+      if (!user) {
+        return next(new HttpError(401, "Incorrect email or password."));
+      }
+
+      const isPasswordCorrect = compare(password, user.passwordHash);
+      if (!isPasswordCorrect) {
+        return next(new HttpError(401, "Incorrect email or password."));
+      }
+
+      const token = generateToken(email, user.id);
+
+      res
+        .status(200)
+        .json({ message: "User logged in.", userId: user.id, token });
     } catch (err) {
       next(err);
     }

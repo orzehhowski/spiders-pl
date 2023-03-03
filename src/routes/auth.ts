@@ -16,4 +16,13 @@ router.post(
   authController.singup
 );
 
+router.post(
+  "/login",
+  excludeFile,
+  body("email", "Incorrect email.").isEmail(),
+  body("password", "No password provided.").notEmpty(),
+  checkValidation,
+  authController.login
+);
+
 export default router;

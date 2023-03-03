@@ -26,6 +26,9 @@ export default class User extends Model {
   username?: string;
 
   @Column
+  isAdmin?: boolean;
+
+  @Column
   token?: string;
 
   @Column

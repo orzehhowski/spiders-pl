@@ -11,11 +11,13 @@ export default (
 ) => {
   console.log(error);
   let status = 500;
+  let message = "Server error.";
   if (error instanceof HttpError) {
     status = error.status;
+    message = error.message;
   }
   if (req.file) {
     unlinkImg(req.file.path.replace("src/public/", ""));
   }
-  res.status(status).json({ message: error.message });
+  res.status(status).json({ message });
 };

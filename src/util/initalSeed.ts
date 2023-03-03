@@ -1,13 +1,18 @@
-import Family from "../models/family";
 import User from "../models/user";
 import db from "./db";
+import { hash } from "bcryptjs";
 
 export default async () => {
   return db.sync({ force: true }).then(async () => {
+    const passwordHash = await hash("wlodzimierzbialy123", 12);
+    if (!passwordHash) {
+      throw new Error("password hash error");
+    }
     const user = await User.create({
       username: "admin",
       email: "admin@admin.pl",
       passwordHash: "abcd",
+      isAdmin: true,
     });
     const firstFamily = await user.$create("family", {
       name: "krzyżakowate",
