@@ -36,7 +36,12 @@ class AuthController {
 
       res
         .status(201)
-        .json({ message: "Account created.", userId: newUser.id, token });
+        .json({
+          message: "Account created.",
+          userId: newUser.id,
+          username: newUser.username,
+          token,
+        });
     } catch (err) {
       next(err);
     }
@@ -60,7 +65,12 @@ class AuthController {
 
       res
         .status(200)
-        .json({ message: "User logged in.", userId: user.id, token });
+        .json({
+          message: "User logged in.",
+          userId: user.id,
+          username: user.username,
+          token,
+        });
     } catch (err) {
       next(err);
     }

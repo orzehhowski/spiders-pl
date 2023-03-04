@@ -4,6 +4,8 @@ import excludeFile from "../middlewares/excludeFile";
 import authController from "../controllers/auth";
 import { body } from "express-validator";
 import checkValidation from "../middlewares/checkValidation";
+import isAuth from "../middlewares/isAuth";
+import isAdmin from "../middlewares/isAdmin";
 
 const router = Router();
 
@@ -24,5 +26,10 @@ router.post(
   checkValidation,
   authController.login
 );
+
+// authorization testing route
+router.post("/test", excludeFile, isAuth, isAdmin, (req, res) => {
+  res.status(200).json({ message: "alles gut" });
+});
 
 export default router;
