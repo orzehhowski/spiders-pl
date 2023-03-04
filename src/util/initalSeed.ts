@@ -14,6 +14,15 @@ export default async () => {
       passwordHash,
       isAdmin: true,
     });
+    const secondPasswordHash = await hash("jeremiaszruzowy321", 12);
+    if (!secondPasswordHash) {
+      throw new Error("password hash error");
+    }
+    const secondUser = await User.create({
+      username: "not admin",
+      email: "test@test.pl",
+      passwordHash,
+    });
     const firstFamily = await user.$create("family", {
       name: "krzyżakowate",
       latinName: "araneidae",
