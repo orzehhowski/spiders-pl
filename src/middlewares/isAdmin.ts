@@ -5,12 +5,16 @@ import HttpError from "../errors/HttpError";
 import User from "../models/user";
 
 export default async (req: Request, res: Response, next: NextFunction) => {
-  const user = await User.findByPk(req.userId);
-  if (!user) {
-    return next(new HttpError(401, "Authorization failed."));
+  try {
+    const user = await User.findByPk(req.userId);
+    if (!user) {
+      return next(new HttpError(401, "Authorization failed."));
+    }
+    if (!user.isAdmin) {
+      return next(new HttpError(403, "Admin rights are required."));
+    }
+    next();
+  } catch (err) {
+    next(err);
   }
-  if (!user.isAdmin) {
-    return next(new HttpError(403, "Admin rights are required."));
-  }
-  next();
 };

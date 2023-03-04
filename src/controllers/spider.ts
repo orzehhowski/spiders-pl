@@ -121,7 +121,7 @@ class SpiderController {
 
   async delete(req: Request, res: Response, next: NextFunction) {
     const id: number = +req.params.id;
-    const includeImages: boolean = req.query.includeImages ? true : false;
+    const includeImages: boolean = req.query.includeImages !== undefined;
 
     try {
       const spider = await Spider.findByPk(id, {

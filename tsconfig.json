@@ -103,6 +103,7 @@
   "files": [
     "src/types/express.d.ts",
     "src/middlewares/isAuth.ts",
-    "src/middlewares/isAdmin.ts"
+    "src/middlewares/isAdmin.ts",
+    "src/controllers/auth.ts"
   ]
 }

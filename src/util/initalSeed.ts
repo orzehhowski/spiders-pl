@@ -11,7 +11,7 @@ export default async () => {
     const user = await User.create({
       username: "admin",
       email: "admin@admin.pl",
-      passwordHash: "abcd",
+      passwordHash,
       isAdmin: true,
     });
     const firstFamily = await user.$create("family", {

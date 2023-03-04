@@ -34,14 +34,12 @@ class AuthController {
 
       const token = generateToken(email, newUser.id);
 
-      res
-        .status(201)
-        .json({
-          message: "Account created.",
-          userId: newUser.id,
-          username: newUser.username,
-          token,
-        });
+      res.status(201).json({
+        message: "Account created.",
+        userId: newUser.id,
+        username: newUser.username,
+        token,
+      });
     } catch (err) {
       next(err);
     }
@@ -63,14 +61,30 @@ class AuthController {
 
       const token = generateToken(email, user.id);
 
-      res
-        .status(200)
-        .json({
-          message: "User logged in.",
-          userId: user.id,
-          username: user.username,
-          token,
-        });
+      res.status(200).json({
+        message: "User logged in.",
+        userId: user.id,
+        username: user.username,
+        token,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async setAdmin(req: Request, res: Response, next: NextFunction) {
+    const email = req.params.email;
+    const toDelete = req.query.delete !== undefined;
+
+    try {
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+        return next(new HttpError(404, "User not found."));
+      }
+
+      user.isAdmin = !toDelete;
+      await user.save();
+      res.status(200).json({ message: "User admin rights changed." });
     } catch (err) {
       next(err);
     }
