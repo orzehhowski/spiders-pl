@@ -10,9 +10,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
     if (!user) {
       return next(new HttpError(401, "Authorization failed."));
     }
-    if (!user.isAdmin) {
-      return next(new HttpError(403, "Admin rights are required."));
-    }
+    req.isAdmin = !!user.isAdmin;
     next();
   } catch (err) {
     next(err);

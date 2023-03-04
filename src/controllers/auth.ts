@@ -76,6 +76,10 @@ class AuthController {
 
   // PUT /auth/set-admin/:email?delete
   async setAdmin(req: Request, res: Response, next: NextFunction) {
+    if (!req.isAdmin) {
+      return next(new HttpError(403, "Admin rights required."));
+    }
+
     const email = req.params.email;
     const toDelete = req.query.delete !== undefined;
 
