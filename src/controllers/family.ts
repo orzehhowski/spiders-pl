@@ -6,6 +6,7 @@ import Family from "../models/family";
 import Spider from "../models/spider";
 
 class FamilyController {
+  // GET /family
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const families = await Family.findAll();
@@ -16,6 +17,7 @@ class FamilyController {
     }
   }
 
+  // GET /family/:id
   async get(req: Request, res: Response, next: NextFunction) {
     const id: number = +req.params.id;
 
@@ -51,9 +53,8 @@ class FamilyController {
     }
   }
 
+  // POST /family
   async post(req: Request, res: Response, next: NextFunction) {
-    //add validation
-
     // restore resources to string
     let resourcesStr: string | null;
     if (typeof req.body.resources === "string") {
@@ -88,9 +89,8 @@ class FamilyController {
     }
   }
 
+  // PUT /family/:id
   async put(req: Request, res: Response, next: NextFunction) {
-    //add validation
-
     try {
       const family = await Family.findByPk(+req.params.id);
       if (!family) {
@@ -127,6 +127,7 @@ class FamilyController {
     }
   }
 
+  // DELETE /family:id
   async delete(req: Request, res: Response, next: NextFunction) {
     const id = +req.params.id;
 

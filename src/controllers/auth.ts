@@ -14,6 +14,7 @@ const generateToken = (email: string, userId: number) => {
 };
 
 class AuthController {
+  // POST /auth/singup
   async singup(req: Request, res: Response, next: NextFunction) {
     const password: string = req.body.password;
     const username: string | undefined = req.body.username;
@@ -45,6 +46,7 @@ class AuthController {
     }
   }
 
+  // POST /auth/login
   async login(req: Request, res: Response, next: NextFunction) {
     const { password, email } = req.body;
     try {
@@ -72,6 +74,7 @@ class AuthController {
     }
   }
 
+  // PUT /auth/set-admin/:email?delete
   async setAdmin(req: Request, res: Response, next: NextFunction) {
     const email = req.params.email;
     const toDelete = req.query.delete !== undefined;

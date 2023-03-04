@@ -7,6 +7,7 @@ import Family from "../models/family";
 import Image from "../models/image";
 
 class SpiderController {
+  // GET /spider/:id
   async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const spider = await Spider.findByPk(+req.params.id, {
@@ -24,9 +25,8 @@ class SpiderController {
     }
   }
 
+  // POST /spider
   async post(req: Request, res: Response, next: NextFunction) {
-    // add validation
-
     // restore resources to string
     let resourcesStr: string | null;
     if (typeof req.body.resources === "string") {
@@ -73,9 +73,8 @@ class SpiderController {
     }
   }
 
+  // PUT /spider/:id
   async put(req: Request, res: Response, next: NextFunction) {
-    // add validation
-
     const spiderId = +req.params.id;
     const latinName = req.body.latinName;
     try {
@@ -119,6 +118,7 @@ class SpiderController {
     }
   }
 
+  // DELETE /spider/:id
   async delete(req: Request, res: Response, next: NextFunction) {
     const id: number = +req.params.id;
     const includeImages: boolean = req.query.includeImages !== undefined;

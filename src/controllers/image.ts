@@ -6,6 +6,7 @@ import Spider from "../models/spider";
 import unlinkImg from "../util/unlinkImg";
 
 class imageController {
+  // GET /image/:id
   async get(req: Request, res: Response, next: NextFunction) {
     const id = +req.params.id;
 
@@ -22,6 +23,7 @@ class imageController {
     }
   }
 
+  // POST /image
   async post(req: Request, res: Response, next: NextFunction) {
     //add validation
     try {
@@ -47,6 +49,7 @@ class imageController {
     }
   }
 
+  // PUT /image/:id
   async put(req: Request, res: Response, next: NextFunction) {
     //add validation
     //check if spider exists
@@ -75,6 +78,7 @@ class imageController {
     }
   }
 
+  // DELETE /image/:id
   async delete(req: Request, res: Response, next: NextFunction) {
     const id = +req.params.id;
 
