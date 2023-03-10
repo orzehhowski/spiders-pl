@@ -104,6 +104,9 @@
     "src/types/express.d.ts",
     "src/middlewares/isAuth.ts",
     "src/middlewares/isAdmin.ts",
-    "src/controllers/auth.ts"
+    "src/controllers/auth.ts",
+    "src/controllers/family.ts",
+    "src/controllers/spider.ts",
+    "src/models/editRequest.ts"
   ]
 }

@@ -4,6 +4,7 @@ import unlinkImg from "../util/unlinkImg";
 import HttpError from "../errors/HttpError";
 import Family from "../models/family";
 import Spider from "../models/spider";
+import User from "../models/user";
 
 class FamilyController {
   // GET /family
@@ -74,16 +75,36 @@ class FamilyController {
       }
       const src = req.file.path.replace("src/public/", "");
 
-      const newFamily = new Family({
-        ...req.body,
-        resources: resourcesStr,
-        image: src,
-      });
-      await newFamily.save();
-      res.status(201).json({
-        message: "Family created.",
-        family: { ...req.body, resources: resourcesStr, image: src },
-      });
+      if (req.isAdmin) {
+        const newFamily = new Family({
+          ...req.body,
+          resources: resourcesStr,
+          image: src,
+          userId: req.userId,
+        });
+        await newFamily.save();
+        res.status(201).json({
+          message: "Family created.",
+          family: { ...req.body, resources: resourcesStr, image: src },
+        });
+      } else {
+        const user = await User.findByPk(req.userId);
+        if (user) {
+          user.$create("editRequest", {
+            ...req.body,
+            resources: resourcesStr,
+            image: src,
+            userId: req.userId,
+            isFamily: true,
+            isNew: true,
+          });
+          res.status(200).json({
+            message: "Create family suggestion sent.",
+          });
+        } else {
+          throw new HttpError(404, "User not found.");
+        }
+      }
     } catch (err) {
       next(err);
     }
