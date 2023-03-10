@@ -67,6 +67,7 @@ class AuthController {
         message: "User logged in.",
         userId: user.id,
         username: user.username,
+        isAdmin: !!user.isAdmin,
         token,
       });
     } catch (err) {
