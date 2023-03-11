@@ -1,5 +1,5 @@
 /* 
-EditRequest model is for a non-admin users suggestions of editing or adding resources. 
+Suggestion model is for a non-admin users suggestions of editing or adding resources. 
 Request will be shown in admin panel, and admin can improve data and accept request or
 reject it. 
 */
@@ -16,7 +16,7 @@ import {
 import User from "./user";
 
 @Table
-export default class EditRequest extends Model {
+export default class Suggestion extends Model {
   @Column
   isNew!: boolean;
 

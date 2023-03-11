@@ -90,7 +90,7 @@ class FamilyController {
       } else {
         const user = await User.findByPk(req.userId);
         if (user) {
-          user.$create("editRequest", {
+          user.$create("suggestion", {
             ...req.body,
             resources: resourcesStr,
             image: src,

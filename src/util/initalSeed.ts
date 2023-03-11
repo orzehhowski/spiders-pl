@@ -23,6 +23,19 @@ export default async () => {
       email: "test@test.pl",
       passwordHash,
     });
+    const firstSuggestion = await secondUser.$create("suggestion", {
+      isNew: true,
+      isFamily: true,
+      name: "krzyżakowats",
+      latinName: "testtest",
+      appearanceDesc:
+        "majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krpie majom <br/>krzyz upie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na majomrzyz na dupie majo",
+      behaviorDesc: "robią dwuwymiarowe sieci",
+      image: "img/krzyzak.jpg",
+      imageAuthor: "Bartosz Orzechowski",
+      resources:
+        "https://pl.wikipedia.org/wiki/Krzy%C5%BCakowate https://arages.de/files/checklist2004_araneae.pdf",
+    });
     const firstFamily = await user.$create("family", {
       name: "krzyżakowate",
       latinName: "araneidae",

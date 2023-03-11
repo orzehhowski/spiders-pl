@@ -8,7 +8,7 @@ import {
   CreatedAt,
   UpdatedAt,
 } from "sequelize-typescript";
-import EditRequest from "./editRequest";
+import Suggestion from "./suggestion";
 import Family from "./family";
 import Spider from "./spider";
 
@@ -41,8 +41,8 @@ export default class User extends Model {
   @HasMany(() => Family)
   families?: Family[];
 
-  @HasMany(() => EditRequest)
-  editRequests?: EditRequest[];
+  @HasMany(() => Suggestion)
+  suggestions?: Suggestion[];
 
   @CreatedAt
   createdAt?: Date;
