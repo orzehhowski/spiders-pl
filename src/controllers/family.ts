@@ -133,16 +133,34 @@ class FamilyController {
         });
       }
 
-      if (req.file) {
-        family.image && unlinkImg(family.image);
-        family.image = req.file.path.replace("src/public/", "");
+      if (req.isAdmin) {
+        if (req.file) {
+          family.image && unlinkImg(family.image);
+          family.image = req.file.path.replace("src/public/", "");
+        }
+
+        Object.assign(family, req.body, { resources: resourcesStr });
+
+        await family.save();
+
+        res.status(200).json({ message: "Family updated.", family });
+      } else {
+        const user = await User.findByPk(req.userId);
+        if (!user) {
+          throw new HttpError(401, "User not found.");
+        }
+        const image = req.file?.path.replace("src/public/", "") || null;
+        user.$create("suggestion", {
+          ...req.body,
+          resources: resourcesStr,
+          isNew: false,
+          isFamily: true,
+          resourceId: family.id,
+          image,
+        });
+
+        res.status(200).json({ message: "Edit family suggestion sent." });
       }
-
-      Object.assign(family, req.body, { resources: resourcesStr });
-
-      await family.save();
-
-      res.status(200).json({ message: "Family updated.", family });
     } catch (err) {
       next(err);
     }
@@ -150,6 +168,9 @@ class FamilyController {
 
   // DELETE /family:id
   async delete(req: Request, res: Response, next: NextFunction) {
+    if (!req.isAdmin) {
+      return next(new HttpError(403, "Only admin can delete resources."));
+    }
     const id = +req.params.id;
 
     try {

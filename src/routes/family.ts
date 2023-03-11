@@ -27,6 +27,8 @@ router.post(
 );
 router.put(
   "/:id",
+  isAuth,
+  isAdmin,
   param("id", "ID must be a number!").isNumeric(),
   checkValidation,
   familyController.put
@@ -34,6 +36,8 @@ router.put(
 router.delete(
   "/:id",
   excludeFile,
+  isAuth,
+  isAdmin,
   param("id", "ID must be a number!").isNumeric(),
   checkValidation,
   familyController.delete
