@@ -9,7 +9,6 @@ export default (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next: NextFunction
 ) => {
-  console.log(error);
   let status = 500;
   let message = "Server error.";
   if (error instanceof HttpError) {
