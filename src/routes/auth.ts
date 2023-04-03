@@ -39,7 +39,7 @@ router.put(
 
 // authorization testing route
 router.get("/test", excludeFile, isAuth, isAdmin, (req, res) => {
-  res.status(200).json({ message: "alles gut" });
+  res.status(200).json({ message: "Alles gut!" });
 });
 
 export default router;

@@ -4,6 +4,7 @@ import supertest from "supertest";
 import sinon from "sinon";
 import jwt from "jsonwebtoken";
 import app from "../src/app";
+import User from "../src/models/user";
 
 const request = supertest(app);
 
@@ -51,6 +52,27 @@ describe("isAuth middleware", () => {
         );
         done();
         stub.restore();
+      });
+  });
+
+  it("should pass isAuth and isAdmin middleware correctly", (done) => {
+    const jwtStub = sinon.stub(jwt, "verify");
+
+    jwtStub.returns({ userId: "1", email: "test", iat: 21, exp: 37 } as any);
+
+    const dbStub = sinon.stub(User, "findByPk");
+    dbStub.resolves({ isAdmin: false } as any);
+
+    request
+      .get("/auth/test")
+      .set("Authorization", "Bearer token")
+      .expect(200)
+      .end((err: Error, res: supertest.Response) => {
+        if (err) return done(err);
+        expect(res.body.message).to.equal("Alles gut!");
+        done();
+        jwtStub.restore();
+        dbStub.restore();
       });
   });
 });
