@@ -29,12 +29,10 @@ class FamilyController {
         throw new HttpError(404, "Family not found.");
       }
 
-      const name = family.name;
-      const latinName = family.latinName;
-      const appearanceDesc = family.appearanceDesc;
-      const behaviorDesc = family.behaviorDesc;
+      const { name, latinName, appearanceDesc, behaviorDesc } = family;
       const resources = family.resources ? family.resources.split(" ") : [];
 
+      // fetch species in family with images
       const spiders = await Spider.findAll({
         attributes: ["latinName", "name", "id"],
         where: { familyId: family.id },
@@ -70,11 +68,14 @@ class FamilyController {
     }
 
     try {
+      // check if file provided
       if (!req.file) {
         throw new HttpError(422, "Image is required.");
       }
+      // set correct file path
       const src = req.file.path.replace("src/public/", "");
 
+      // create and save family if user is admin
       if (req.isAdmin) {
         const newFamily = new Family({
           ...req.body,
@@ -87,7 +88,9 @@ class FamilyController {
           message: "Family created.",
           family: { ...req.body, resources: resourcesStr, image: src },
         });
-      } else {
+      }
+      // else create and send suggestion
+      else {
         const user = await User.findByPk(req.userId);
         if (user) {
           user.$create("suggestion", {
@@ -133,22 +136,28 @@ class FamilyController {
         });
       }
 
+      // update family if user is admin
       if (req.isAdmin) {
+        // change file if provided
         if (req.file) {
           family.image && unlinkImg(family.image);
           family.image = req.file.path.replace("src/public/", "");
         }
 
+        // update family
         Object.assign(family, req.body, { resources: resourcesStr });
 
         await family.save();
 
         res.status(200).json({ message: "Family updated.", family });
-      } else {
+      }
+      // else send suggestion
+      else {
         const user = await User.findByPk(req.userId);
         if (!user) {
           throw new HttpError(401, "User not found.");
         }
+        // check if image provided
         const image = req.file?.path.replace("src/public/", "") || null;
         user.$create("suggestion", {
           ...req.body,
@@ -184,6 +193,7 @@ class FamilyController {
         throw new HttpError(422, "You can't delete family containing spiders!");
       }
 
+      // delete image
       family.image && unlinkImg(family.image);
 
       await family.destroy();
