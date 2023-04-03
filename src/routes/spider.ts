@@ -4,6 +4,8 @@ import checkValidation from "../middlewares/checkValidation";
 
 import excludeFile from "../middlewares/excludeFile";
 import spiderController from "../controllers/spider";
+import isAuth from "../middlewares/isAuth";
+import isAdmin from "../middlewares/isAdmin";
 
 const router = Router();
 
@@ -16,12 +18,17 @@ router.get(
 );
 router.post(
   "/",
+  isAuth,
+  isAdmin,
   body("latinName", "Latin name is required!").notEmpty(),
+  body("familyId", "Family ID must be a number!").isNumeric(),
   checkValidation,
   spiderController.post
 );
 router.put(
   "/:id",
+  isAuth,
+  isAdmin,
   param("id", "ID must be a number!").isNumeric(),
   checkValidation,
   excludeFile,
@@ -29,6 +36,8 @@ router.put(
 );
 router.delete(
   "/:id",
+  isAuth,
+  isAdmin,
   param("id", "ID must be a number!").isNumeric(),
   checkValidation,
   excludeFile,

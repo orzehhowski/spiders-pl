@@ -5,6 +5,7 @@ import unlinkImg from "../util/unlinkImg";
 import Spider from "../models/spider";
 import Family from "../models/family";
 import Image from "../models/image";
+import User from "../models/user";
 
 class SpiderController {
   // GET /spider/:id
@@ -43,31 +44,57 @@ class SpiderController {
     const familyId = +req.body.familyId;
 
     try {
+      // check if image provided
       if (!req.file) {
         throw new HttpError(422, "Image is required.");
       }
 
+      // correct image path
       const src = req.file.path.replace("src/public/", "") || "";
 
+      // create image object
       const imageInfo = {
         src,
         author: req.body.imageAuthor,
       };
+
       const family = await Family.findByPk(familyId);
       if (!family) {
         throw new HttpError(404, "Family not found.");
       }
-      const spider = await family.$create("spider", {
-        ...req.body,
-        resources: resourcesStr,
-      });
+      // update spider if user is admin
+      if (req.isAdmin) {
+        const spider = await family.$create("spider", {
+          ...req.body,
+          resources: resourcesStr,
+        });
 
-      await spider.$create("image", imageInfo);
+        await spider.$create("image", imageInfo);
 
-      res.status(201).json({
-        message: "Spider created.",
-        spider: { ...spider.dataValues, image: imageInfo },
-      });
+        res.status(201).json({
+          message: "Spider created.",
+          spider: { ...spider.dataValues, image: imageInfo },
+        });
+      }
+      // else send suggestion
+      else {
+        const user = await User.findByPk(req.userId);
+        if (!user) {
+          throw new HttpError(401, "User not found");
+        }
+
+        user.$create("suggestion", {
+          ...req.body,
+          resources: resourcesStr,
+          isFamily: false,
+          isNew: true,
+          image: imageInfo.src,
+          imageAuthor: imageInfo.author,
+        });
+        res.status(200).json({
+          message: "Create spider suggestion sent.",
+        });
+      }
     } catch (err) {
       next(err);
     }
@@ -78,6 +105,7 @@ class SpiderController {
     const spiderId = +req.params.id;
     const latinName = req.body.latinName;
     try {
+      // check if latin name is taken
       if (latinName) {
         const isNameTaken = await Spider.findOne({
           where: { latinName: latinName },
@@ -89,6 +117,8 @@ class SpiderController {
           );
         }
       }
+
+      // find spider
       const spider = await Spider.findByPk(spiderId);
       if (!spider) {
         throw new HttpError(404, "Spider not found.");
@@ -109,18 +139,43 @@ class SpiderController {
         });
       }
 
-      Object.assign(spider, req.body, { resources: resourcesStr });
-      await spider.save();
+      // if user is admin update spider
+      if (req.isAdmin) {
+        Object.assign(spider, req.body, { resources: resourcesStr });
+        await spider.save();
 
-      res.status(200).json({ message: "Spider updated.", spider: spider });
+        res.status(200).json({ message: "Spider updated.", spider: spider });
+      }
+      // if not create a suggestion
+      else {
+        const user = await User.findByPk(req.userId);
+        if (!user) {
+          throw new HttpError(401, "User not found.");
+        }
+        user.$create("suggestion", {
+          ...req.body,
+          resources: resourcesStr,
+          isFamily: false,
+          isNew: false,
+          resourceId: spider.id,
+        });
+
+        res.status(200).json({ message: "Update spider suggestion sent." });
+      }
     } catch (err) {
       next(err);
     }
   }
 
-  // DELETE /spider/:id
+  // DELETE /spider/:id?inclugeImages
   async delete(req: Request, res: Response, next: NextFunction) {
-    const id: number = +req.params.id;
+    // check if user is admin
+    if (!req.isAdmin) {
+      return next(new HttpError(403, "Only admin can delete resources."));
+    }
+
+    const id = +req.params.id;
+    // check if images should be deleted too
     const includeImages: boolean = req.query.includeImages !== undefined;
 
     try {
@@ -132,6 +187,7 @@ class SpiderController {
         throw new HttpError(404, "Spider not found.");
       }
 
+      // delete images from filesystem and db
       if (includeImages) {
         spider.images?.forEach((img) => {
           unlinkImg(img.src);

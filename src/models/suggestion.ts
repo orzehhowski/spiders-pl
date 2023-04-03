@@ -23,6 +23,11 @@ export default class Suggestion extends Model {
   @Column
   isFamily!: boolean;
 
+  // only for create spider suggestions
+  @Column
+  familyId?: number;
+
+  // only for update suggestions
   @Column
   resourceId?: number;
 
@@ -44,9 +49,11 @@ export default class Suggestion extends Model {
   @Column(DataType.TEXT)
   resources?: string;
 
+  // only for family suggestions
   @Column
   imageAuthor?: string;
 
+  // only for family suggestions
   @Column
   image?: string;
 
