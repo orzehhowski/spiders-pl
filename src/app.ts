@@ -11,7 +11,7 @@ import spiderRoutes from "./routes/spider";
 import imageRoutes from "./routes/image";
 import adminRoutes from "./routes/admin";
 import authRoutes from "./routes/auth";
-import initalSeed from "./util/initalSeed";
+// import initalSeed from "./util/initalSeed";
 import errorMiddleware from "./errors/errorMiddleware";
 
 const app = express();
@@ -72,10 +72,12 @@ app.use(errorMiddleware);
 
 // RUNNING APP
 
-initalSeed()
-  .then(() => {
-    app.listen(8080);
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+// initalSeed()
+//   .then(() => {
+//     app.listen(8080);
+//   })
+//   .catch((err) => {
+//     console.log(err);
+//   });
+
+export default app;

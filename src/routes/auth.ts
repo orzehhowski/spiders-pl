@@ -38,7 +38,7 @@ router.put(
 );
 
 // authorization testing route
-router.post("/test", excludeFile, isAuth, isAdmin, (req, res) => {
+router.get("/test", excludeFile, isAuth, isAdmin, (req, res) => {
   res.status(200).json({ message: "alles gut" });
 });
 
