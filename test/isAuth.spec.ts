@@ -2,8 +2,8 @@
 import { expect } from "chai";
 import supertest from "supertest";
 import sinon from "sinon";
-import jwt from "jsonwebtoken";
 import app from "../src/app";
+import jwt from "jsonwebtoken";
 import User from "../src/models/user";
 
 const request = supertest(app);

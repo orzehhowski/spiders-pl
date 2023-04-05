@@ -4,7 +4,7 @@
   "description": "spiders site",
   "main": "src/app.ts",
   "scripts": {
-    "test": "mocha",
+    "test": "mocha --timeout 5000",
     "start": "nodemon src/run.ts",
     "lint": "eslint --ext .ts .",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""

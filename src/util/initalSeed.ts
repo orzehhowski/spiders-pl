@@ -2,8 +2,12 @@ import User from "../models/user";
 import db from "./db";
 import { hash } from "bcryptjs";
 
-export default async () => {
-  return db()
+interface Options {
+  isTesting?: boolean;
+}
+
+export default async (options?: Options) => {
+  return db({ isTesting: !!options?.isTesting })
     .sync({ force: true })
     .then(async () => {
       const passwordHash = await hash("wlodzimierzbialy123", 12);

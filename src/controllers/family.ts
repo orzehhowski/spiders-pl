@@ -66,7 +66,6 @@ class FamilyController {
         resourcesStr += source + " ";
       });
     }
-
     try {
       // check if file provided
       if (!req.file) {
@@ -93,16 +92,20 @@ class FamilyController {
       else {
         const user = await User.findByPk(req.userId);
         if (user) {
-          user.$create("suggestion", {
+          const family = {
             ...req.body,
             resources: resourcesStr,
             image: src,
+          };
+          user.$create("suggestion", {
+            ...family,
             userId: req.userId,
             isFamily: true,
             isNew: true,
           });
           res.status(200).json({
             message: "Create family suggestion sent.",
+            family,
           });
         } else {
           throw new HttpError(404, "User not found.");
