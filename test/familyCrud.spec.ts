@@ -15,6 +15,8 @@ const request = supertest(app);
 describe("family controllers", () => {
   let nonAdminToken: string;
   let adminToken: string;
+  const imagePath = "test/darownik.jpeg";
+  const secondImagePath = "test/walesak.jpeg";
   const imagesToDelete: Array<string> = [];
 
   before((done) => {
@@ -95,7 +97,7 @@ describe("family controllers", () => {
     request
       .post("/family")
       .set("Authorization", `Bearer ${adminToken}`)
-      .attach("image", "test/darownik.jpeg")
+      .attach("image", imagePath)
       .field("latinName", "testus maximus")
       .field("name", "darownik przedziwny")
       .expect(201)
@@ -135,6 +137,64 @@ describe("family controllers", () => {
       .end((err, res) => {
         if (err) return done(err);
         expect(res.body.message).to.be.equal("Image is required.");
+        done();
+      });
+  });
+
+  it("PUT - should edit family correctly without image", (done) => {
+    request
+      .put("/family/3")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .field("latinName", "testus minimus")
+      .field("resources", ["https://google.com", "https://wikipedia.org"])
+      .field("name", "")
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+        expect(res.body.message).to.be.equal("Family updated.");
+        expect(res.body.family.name).to.be.equal("");
+        expect(res.body.family.image).to.include("darownik.jpeg");
+        done();
+      });
+  });
+
+  it("PUT - should edit family correctly with image", (done) => {
+    request
+      .put("/family/3")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .attach("image", secondImagePath)
+      .field("latinName", "Pardosa amentata")
+      .field("name", "wałęsak zwyczajny")
+      .field("resources", "")
+      .expect(200)
+      .end((err, res) => {
+        imagesToDelete.push(res.body.family.image);
+        if (err) return done(err);
+        expect(res.body.message).to.be.equal("Family updated.");
+        expect(res.body.family.name).to.be.equal("wałęsak zwyczajny");
+        expect(res.body.family.image).to.include("walesak.jpeg");
+        expect(res.body.family.resources).to.be.equal("");
+        done();
+      });
+  });
+
+  it("PUT - should add a suggestion of editing a family", (done) => {
+    request
+      .put("/family/3")
+      .set("Authorization", `Bearer ${nonAdminToken}`)
+      .attach("image", secondImagePath)
+      .field("latinName", "Pardosa amentata")
+      .field("name", "wałęsak zwyczajny")
+      .field("it", "doesn't exist lol")
+      .field("resources", "")
+      .expect(200)
+      .end((err, res) => {
+        imagesToDelete.push(res.body.family.image);
+        if (err) return done(err);
+        expect(res.body.message).to.be.equal("Edit family suggestion sent.");
+        expect(res.body.family.name).to.be.equal("wałęsak zwyczajny");
+        expect(res.body.family.image).to.include("walesak.jpeg");
+        expect(res.body.family.resources).to.be.equal("");
         done();
       });
   });

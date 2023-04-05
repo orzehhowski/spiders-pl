@@ -146,7 +146,6 @@ class FamilyController {
           family.image && unlinkImg(family.image);
           family.image = req.file.path.replace("src/public/", "");
         }
-
         // update family
         Object.assign(family, req.body, { resources: resourcesStr });
 
@@ -171,7 +170,12 @@ class FamilyController {
           image,
         });
 
-        res.status(200).json({ message: "Edit family suggestion sent." });
+        res
+          .status(200)
+          .json({
+            message: "Edit family suggestion sent.",
+            family: { ...req.body, resources: resourcesStr, image },
+          });
       }
     } catch (err) {
       next(err);
