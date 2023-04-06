@@ -15,8 +15,10 @@ const request = supertest(app);
 describe("family controllers", () => {
   let nonAdminToken: string;
   let adminToken: string;
-  const imagePath = "test/darownik.jpeg";
-  const secondImagePath = "test/walesak.jpeg";
+  const imagePath = "test/img/darownik.jpeg";
+  const secondImagePath = "test/img/walesak.jpeg";
+  const adminId = 1;
+  const notAdminId = 2;
   const imagesToDelete: Array<string> = [];
 
   before((done) => {
@@ -103,27 +105,52 @@ describe("family controllers", () => {
       .expect(201)
       .end((err, res) => {
         if (err) return done(err);
-        imagesToDelete.push(res.body.family.image);
+
+        imagesToDelete.push(res.body.family.image.src);
+
         expect(res.body.message).to.be.equal("Family created.");
-        expect(res.body.family.name).to.be.equal("darownik przedziwny");
-        done();
+
+        Family.findOne({ where: { latinName: "testus maximus" } })
+          .then((family) => {
+            expect(family).to.not.be.equal(null);
+            if (family) {
+              expect(family.name).to.be.equal("darownik przedziwny");
+              expect(family.userId).to.be.equal(adminId);
+              expect(family.adminId).to.be.equal(adminId);
+            }
+            done();
+          })
+          .catch((err) => done(err));
       });
   });
 
-  it("POST - should add a suggestion of creating spider", (done) => {
+  it("POST - should add a suggestion of creating family", (done) => {
     request
       .post("/family")
       .set("Authorization", `Bearer ${nonAdminToken}`)
-      .attach("image", "test/darownik.jpeg")
+      .attach("image", imagePath)
       .field("latinName", "testus maximus")
       .field("name", "darownik przedziwny")
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
-        imagesToDelete.push(res.body.family.image);
+        imagesToDelete.push(res.body.family.image.src);
+
         expect(res.body.message).to.be.equal("Create family suggestion sent.");
-        expect(res.body.family.name).to.be.equal("darownik przedziwny");
-        done();
+
+        Suggestion.findOne({ where: { latinName: "testus maximus" } })
+          .then((suggestion) => {
+            expect(suggestion).not.to.be.equal(null);
+            if (suggestion) {
+              expect(suggestion.name).to.be.equal("darownik przedziwny");
+              expect(suggestion.userId).to.be.equal(notAdminId);
+              expect(suggestion.isNew).to.be.equal(true);
+              expect(suggestion.isFamily).to.be.equal(true);
+            }
+
+            done();
+          })
+          .catch((err) => done(err));
       });
   });
 
@@ -147,14 +174,31 @@ describe("family controllers", () => {
       .set("Authorization", `Bearer ${adminToken}`)
       .field("latinName", "testus minimus")
       .field("resources", ["https://google.com", "https://wikipedia.org"])
+      .field("imageAuthor", "Jacek Placek")
       .field("name", "")
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
         expect(res.body.message).to.be.equal("Family updated.");
-        expect(res.body.family.name).to.be.equal("");
-        expect(res.body.family.image).to.include("darownik.jpeg");
-        done();
+
+        Family.findOne({
+          where: { latinName: "testus minimus" },
+          include: Family.associations.image,
+        })
+          .then((family) => {
+            expect(family).to.not.be.equal(null);
+            if (family) {
+              expect(family.name).to.be.equal("");
+              expect(family.image.src).to.include("darownik.jpeg");
+              expect(family.image.author).to.be.equal("Jacek Placek");
+              expect(family.resources).to.be.equal(
+                "https://google.com https://wikipedia.org "
+              );
+              expect(family.userId).to.be.equal(adminId);
+            }
+            done();
+          })
+          .catch((err) => done(err));
       });
   });
 
@@ -168,13 +212,25 @@ describe("family controllers", () => {
       .field("resources", "")
       .expect(200)
       .end((err, res) => {
-        imagesToDelete.push(res.body.family.image);
+        imagesToDelete.push(res.body.family.image.src);
         if (err) return done(err);
+
         expect(res.body.message).to.be.equal("Family updated.");
-        expect(res.body.family.name).to.be.equal("wałęsak zwyczajny");
-        expect(res.body.family.image).to.include("walesak.jpeg");
-        expect(res.body.family.resources).to.be.equal("");
-        done();
+        Family.findOne({
+          where: { latinName: "Pardosa amentata" },
+          include: Family.associations.image,
+        })
+          .then((family) => {
+            expect(family).to.not.be.equal(null);
+            if (family) {
+              expect(family.name).to.be.equal("wałęsak zwyczajny");
+              expect(family.image.src).to.include("walesak.jpeg");
+              expect(family.image.author).to.be.equal("");
+              expect(family.resources).to.be.equal("");
+            }
+            done();
+          })
+          .catch((err) => done(err));
       });
   });
 
@@ -189,13 +245,29 @@ describe("family controllers", () => {
       .field("resources", "")
       .expect(200)
       .end((err, res) => {
-        imagesToDelete.push(res.body.family.image);
+        imagesToDelete.push(res.body.family.image.src);
         if (err) return done(err);
         expect(res.body.message).to.be.equal("Edit family suggestion sent.");
-        expect(res.body.family.name).to.be.equal("wałęsak zwyczajny");
-        expect(res.body.family.image).to.include("walesak.jpeg");
-        expect(res.body.family.resources).to.be.equal("");
-        done();
+
+        Suggestion.findOne({
+          where: { latinName: "Pardosa amentata" },
+          include: Suggestion.associations.image,
+        })
+          .then((suggestion) => {
+            expect(suggestion).not.to.be.equal(null);
+            if (suggestion) {
+              expect(suggestion.name).to.be.equal("wałęsak zwyczajny");
+              if (suggestion.image) {
+                expect(suggestion.image.src).to.include("walesak.jpeg");
+              } else {
+                throw new Error("Suggestion has no image!");
+              }
+              expect(suggestion.resources).to.be.equal("");
+              expect(suggestion.userId).to.be.equal(notAdminId);
+            }
+            done();
+          })
+          .catch((err) => done(err));
       });
   });
 
@@ -206,10 +278,10 @@ describe("family controllers", () => {
       Family.drop();
       Suggestion.drop();
       User.drop();
-      done();
       imagesToDelete.forEach((src) => {
         unlinkImg(src);
       });
+      done();
     } catch (err) {
       done(err);
     }

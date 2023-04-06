@@ -185,7 +185,16 @@ class FamilyController {
         // update family
         Object.assign(family, req.body, { resources: resourcesStr });
 
+        if (req.body.imageAuthor) {
+          family.image.author = req.body.imageAuthor;
+        } else {
+          if (req.file) {
+            family.image.author = "";
+          }
+        }
+
         await family.save();
+        await family.image.save();
 
         res.status(200).json({ message: "Family updated.", family });
       }
@@ -209,7 +218,7 @@ class FamilyController {
 
         // attach image if provided
         if (src) {
-          suggestion.$create("image", {
+          await suggestion.$create("image", {
             src,
             author: req.body.imageAuthor,
           });
