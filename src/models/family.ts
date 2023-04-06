@@ -6,6 +6,7 @@ import {
   CreatedAt,
   UpdatedAt,
   HasMany,
+  HasOne,
   AllowNull,
   Unique,
   ForeignKey,
@@ -13,6 +14,7 @@ import {
 } from "sequelize-typescript";
 import Spider from "./spider";
 import User from "./user";
+import Image from "./image";
 
 @Table
 export default class Family extends Model {
@@ -34,21 +36,27 @@ export default class Family extends Model {
   @Column(DataType.TEXT)
   resources?: string;
 
-  @Column
-  image!: string;
-
-  @Column
-  imageAuthor?: string;
+  @HasOne(() => Image)
+  image!: Image;
 
   @HasMany(() => Spider)
   spiders?: Spider[];
 
+  // user that suggested creation
   @ForeignKey(() => User)
   @Column
   userId!: number;
 
-  @BelongsTo(() => User)
+  @BelongsTo(() => User, { foreignKey: "userId" })
   user?: User;
+
+  // Admin that accepted creation
+  @ForeignKey(() => User)
+  @Column
+  adminId!: number;
+
+  @BelongsTo(() => User, { foreignKey: "adminId" })
+  admin?: User;
 
   @CreatedAt
   createdAt?: string;

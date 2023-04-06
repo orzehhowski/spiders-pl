@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { Op } from "sequelize";
 
 import unlinkImg from "../util/unlinkImg";
 import HttpError from "../errors/HttpError";
@@ -10,7 +11,9 @@ class FamilyController {
   // GET /family
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const families = await Family.findAll();
+      const families = await Family.findAll({
+        include: Family.associations.image,
+      });
 
       res.status(200).json({ families });
     } catch (err) {
@@ -53,6 +56,7 @@ class FamilyController {
   }
 
   // POST /family
+  // body: { image!: file, latinName!, name?, behaviorDesc?, appearanceDesc?, imageAuthor?, resources? }
   async post(req: Request, res: Response, next: NextFunction) {
     // restore resources to string
     let resourcesStr: string | null;
@@ -76,16 +80,23 @@ class FamilyController {
 
       // create and save family if user is admin
       if (req.isAdmin) {
-        const newFamily = new Family({
+        const newFamily = await Family.create({
           ...req.body,
           resources: resourcesStr,
-          image: src,
           userId: req.userId,
+          adminId: req.userId,
         });
-        await newFamily.save();
+        await newFamily.$create("image", {
+          src,
+          author: req.body.imageAuthor,
+        });
+
         res.status(201).json({
           message: "Family created.",
-          family: { ...req.body, resources: resourcesStr, image: src },
+          family: {
+            ...newFamily.dataValues,
+            image: { src, author: req.body.imageAuthor },
+          },
         });
       }
       // else create and send suggestion
@@ -95,17 +106,25 @@ class FamilyController {
           const family = {
             ...req.body,
             resources: resourcesStr,
-            image: src,
           };
-          user.$create("suggestion", {
+          const suggestion = await user.$create("suggestion", {
             ...family,
-            userId: req.userId,
             isFamily: true,
             isNew: true,
           });
+          await suggestion.$create("image", {
+            src,
+            author: req.body.imageAuthor,
+          });
           res.status(200).json({
             message: "Create family suggestion sent.",
-            family,
+            family: {
+              ...family,
+              image: {
+                src,
+                author: req.body.imageAuthor,
+              },
+            },
           });
         } else {
           throw new HttpError(404, "User not found.");
@@ -117,11 +136,28 @@ class FamilyController {
   }
 
   // PUT /family/:id
+  // body: { image?: file, latinName?, name?, behaviorDesc?, appearanceDesc?, imageAuthor?, resources? }
   async put(req: Request, res: Response, next: NextFunction) {
     try {
-      const family = await Family.findByPk(+req.params.id);
+      const family = await Family.findByPk(+req.params.id, {
+        include: Family.associations.image,
+      });
       if (!family) {
         throw new HttpError(404, "Family not found.");
+      }
+
+      const latinName = req.body.latinName;
+
+      if (latinName) {
+        const isNameTaken = await Spider.findOne({
+          where: { latinName: latinName, id: { [Op.ne]: +req.params.id } },
+        });
+        if (isNameTaken) {
+          throw new HttpError(
+            422,
+            "Family with this latin name allready exists."
+          );
+        }
       }
 
       // restore resources to string
@@ -143,8 +179,8 @@ class FamilyController {
       if (req.isAdmin) {
         // change file if provided
         if (req.file) {
-          family.image && unlinkImg(family.image);
-          family.image = req.file.path.replace("src/public/", "");
+          family.image && unlinkImg(family.image.src);
+          family.image.src = req.file.path.replace("src/public/", "");
         }
         // update family
         Object.assign(family, req.body, { resources: resourcesStr });
@@ -153,6 +189,7 @@ class FamilyController {
 
         res.status(200).json({ message: "Family updated.", family });
       }
+
       // else send suggestion
       else {
         const user = await User.findByPk(req.userId);
@@ -160,22 +197,31 @@ class FamilyController {
           throw new HttpError(401, "User not found.");
         }
         // check if image provided
-        const image = req.file?.path.replace("src/public/", "") || null;
-        user.$create("suggestion", {
-          ...req.body,
-          resources: resourcesStr,
+        const src = req.file?.path.replace("src/public/", "") || null;
+
+        const newFamily = Object.assign(req.body, { resources: resourcesStr });
+        const suggestion = await user.$create("suggestion", {
+          ...newFamily,
           isNew: false,
           isFamily: true,
           resourceId: family.id,
-          image,
         });
 
-        res
-          .status(200)
-          .json({
-            message: "Edit family suggestion sent.",
-            family: { ...req.body, resources: resourcesStr, image },
+        // attach image if provided
+        if (src) {
+          suggestion.$create("image", {
+            src,
+            author: req.body.imageAuthor,
           });
+        }
+
+        res.status(200).json({
+          message: "Edit family suggestion sent.",
+          family: {
+            ...newFamily,
+            image: { src, author: req.body.imageAuthor },
+          },
+        });
       }
     } catch (err) {
       next(err);
@@ -191,7 +237,7 @@ class FamilyController {
 
     try {
       const family = await Family.findByPk(id, {
-        include: Family.associations.spiders,
+        include: [Family.associations.spiders, Family.associations.image],
       });
       if (!family) {
         throw new HttpError(404, "Family not found.");
@@ -201,8 +247,9 @@ class FamilyController {
       }
 
       // delete image
-      family.image && unlinkImg(family.image);
+      family.image && unlinkImg(family.image.src);
 
+      await family.image.destroy();
       await family.destroy();
 
       res.status(200).json({ message: "Family deleted." });

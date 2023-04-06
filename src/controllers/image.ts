@@ -24,8 +24,8 @@ class imageController {
   }
 
   // POST /image
+  // image should be posted only for spider, cuz suggestion and family can contain only 1 image
   async post(req: Request, res: Response, next: NextFunction) {
-    //add validation
     try {
       if (!req.file) {
         throw new HttpError(422, "Image not provided.");
@@ -38,7 +38,6 @@ class imageController {
       if (!spider) {
         throw new HttpError(404, "Spider not found.");
       }
-
       await spider.$create("image", { src, author });
 
       res
@@ -53,6 +52,10 @@ class imageController {
   async put(req: Request, res: Response, next: NextFunction) {
     //add validation
     //check if spider exists
+
+    if (!req.isAdmin) {
+      throw new HttpError(403, "Only admin can edit existing images");
+    }
 
     const id = +req.params.id;
 
@@ -82,13 +85,17 @@ class imageController {
   async delete(req: Request, res: Response, next: NextFunction) {
     const id = +req.params.id;
 
+    if (!req.isAdmin) {
+      throw new HttpError(403, "Only admin can delete images");
+    }
+
     try {
       const image = await Image.findByPk(id);
 
       if (!image) {
         throw new HttpError(404, "Image not found.");
       }
-      console.log(image.src);
+
       unlinkImg(image.src);
       await image.destroy();
       res.status(200).json({ message: "Image deleted." });

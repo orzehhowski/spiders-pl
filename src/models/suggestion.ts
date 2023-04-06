@@ -12,8 +12,10 @@ import {
   UpdatedAt,
   ForeignKey,
   BelongsTo,
+  HasOne,
 } from "sequelize-typescript";
 import User from "./user";
+import Image from "./image";
 
 @Table
 export default class Suggestion extends Model {
@@ -49,20 +51,24 @@ export default class Suggestion extends Model {
   @Column(DataType.TEXT)
   resources?: string;
 
-  // only for family suggestions
-  @Column
-  imageAuthor?: string;
+  @HasOne(() => Image)
+  image?: Image;
 
-  // only for family suggestions
-  @Column
-  image?: string;
-
+  // user that suggested creation
   @ForeignKey(() => User)
   @Column
   userId!: number;
 
-  @BelongsTo(() => User)
+  @BelongsTo(() => User, { foreignKey: "userId" })
   user?: User;
+
+  // Admin that accepted creation
+  @ForeignKey(() => User)
+  @Column
+  adminId!: number;
+
+  @BelongsTo(() => User, { foreignKey: "adminId" })
+  admin?: User;
 
   @CreatedAt
   createdAt?: string;

@@ -6,15 +6,15 @@ import {
   UpdatedAt,
   ForeignKey,
   AllowNull,
-  Unique,
   BelongsTo,
 } from "sequelize-typescript";
 import Spider from "./spider";
+import Family from "./family";
+import Suggestion from "./suggestion";
 
 @Table
 export default class Image extends Model {
   @AllowNull(false)
-  @Unique(true)
   @Column
   src!: string;
 
@@ -23,10 +23,24 @@ export default class Image extends Model {
 
   @ForeignKey(() => Spider)
   @Column
-  spiderId!: number;
+  spiderId?: number;
 
   @BelongsTo(() => Spider)
   spider?: Spider;
+
+  @ForeignKey(() => Family)
+  @Column
+  familyId?: number;
+
+  @BelongsTo(() => Family)
+  family?: Family;
+
+  @ForeignKey(() => Suggestion)
+  @Column
+  suggestionId?: number;
+
+  @BelongsTo(() => Suggestion)
+  suggestion?: Suggestion;
 
   @CreatedAt
   createdAt?: string;

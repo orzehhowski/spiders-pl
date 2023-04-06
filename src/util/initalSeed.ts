@@ -37,21 +37,26 @@ export default async (options?: Options) => {
         appearanceDesc:
           "majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krpie majom <br/>krzyz upie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na majomrzyz na dupie majo",
         behaviorDesc: "robią dwuwymiarowe sieci",
-        image: "img/krzyzak.jpg",
-        imageAuthor: "Bartosz Orzechowski",
         resources:
           "https://pl.wikipedia.org/wiki/Krzy%C5%BCakowate https://arages.de/files/checklist2004_araneae.pdf",
       });
+      const suggestionImage = await firstSuggestion.$create("image", {
+        src: "img/krzyzak.jpg",
+        author: "Bartosz Orzechowski",
+      });
       const firstFamily = await user.$create("family", {
+        adminId: user.id,
         name: "krzyżakowate",
         latinName: "araneidae",
         appearanceDesc:
           "majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krpie majom <br/>krzyz upie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na majomrzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz na dupie majom krzyz dupie",
         behaviorDesc: "robią dwuwymiarowe sieci",
-        image: "img/krzyzak.jpg",
-        imageAuthor: "Bartosz Orzechowski",
         resources:
           "https://pl.wikipedia.org/wiki/Krzy%C5%BCakowate https://arages.de/files/checklist2004_araneae.pdf",
+      });
+      const familyImage = await firstFamily.$create("image", {
+        src: "img/krzyzak.jpg",
+        author: "Bartosz Orzechowski",
       });
 
       const firstSpider = await firstFamily.$create("spider", {
@@ -61,6 +66,7 @@ export default async (options?: Options) => {
         behaviorDesc: "sieci plecie",
         resources: "https://pl.wikipedia.org/wiki/Krzy%C5%BCakowate",
         userId: user.id,
+        adminId: user.id,
       });
 
       await firstSpider.$create("image", {
@@ -73,14 +79,18 @@ export default async (options?: Options) => {
       });
 
       const secondFamily = await user.$create("family", {
+        adminId: user.id,
         name: "kwadratnikowate",
         latinName: "Tetragnathidae",
-        image: "img/pajak1.jpg",
-        imageAuthor: "Bartosz Orzechowski",
+      });
+      const secondFamilyImage = await secondFamily.$create("image", {
+        src: "img/pajak1.jpg",
+        author: "Bartosz Orzechowski",
       });
       const secondSpider = await secondFamily.$create("spider", {
         latinName: "Metellina segmentata",
         userId: user.id,
+        adminId: user.id,
       });
 
       await secondSpider.$create("image", {

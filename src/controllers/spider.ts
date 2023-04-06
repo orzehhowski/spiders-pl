@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { Op } from "sequelize";
 
 import HttpError from "../errors/HttpError";
 import unlinkImg from "../util/unlinkImg";
@@ -27,6 +28,7 @@ class SpiderController {
   }
 
   // POST /spider
+  // body: { image!: file, familyId!, latinName!, name?, behaviorDesc?, appearanceDesc?, imageAuthor?, resources? }
   async post(req: Request, res: Response, next: NextFunction) {
     // restore resources to string
     let resourcesStr: string | null;
@@ -50,7 +52,7 @@ class SpiderController {
       }
 
       // correct image path
-      const src = req.file.path.replace("src/public/", "") || "";
+      const src = req.file?.path.replace("src/public/", "");
 
       // create image object
       const imageInfo = {
@@ -62,11 +64,13 @@ class SpiderController {
       if (!family) {
         throw new HttpError(404, "Family not found.");
       }
-      // update spider if user is admin
+      // create spider if user is admin
       if (req.isAdmin) {
         const spider = await family.$create("spider", {
           ...req.body,
           resources: resourcesStr,
+          userId: req.userId,
+          adminId: req.userId,
         });
 
         await spider.$create("image", imageInfo);
@@ -83,16 +87,22 @@ class SpiderController {
           throw new HttpError(401, "User not found");
         }
 
-        user.$create("suggestion", {
+        const suggestion = await user.$create("suggestion", {
           ...req.body,
           resources: resourcesStr,
           isFamily: false,
           isNew: true,
-          image: imageInfo.src,
-          imageAuthor: imageInfo.author,
         });
+
+        await suggestion.$create("image", imageInfo);
+
         res.status(200).json({
           message: "Create spider suggestion sent.",
+          spider: {
+            ...req.body,
+            resources: resourcesStr,
+            image: imageInfo,
+          },
         });
       }
     } catch (err) {
@@ -108,7 +118,7 @@ class SpiderController {
       // check if latin name is taken
       if (latinName) {
         const isNameTaken = await Spider.findOne({
-          where: { latinName: latinName },
+          where: { latinName: latinName, id: { [Op.ne]: spiderId } },
         });
         if (isNameTaken) {
           throw new HttpError(

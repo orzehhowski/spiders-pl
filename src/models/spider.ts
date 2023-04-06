@@ -35,12 +35,21 @@ export default class Spider extends Model {
   @Column(DataType.TEXT)
   resources?: string;
 
+  // user that suggested creation
   @ForeignKey(() => User)
   @Column
   userId!: number;
 
-  @BelongsTo(() => User)
+  @BelongsTo(() => User, { foreignKey: "userId" })
   user?: User;
+
+  // Admin that accepted creation
+  @ForeignKey(() => User)
+  @Column
+  adminId!: number;
+
+  @BelongsTo(() => User, { foreignKey: "adminId" })
+  admin?: User;
 
   @ForeignKey(() => Family)
   @Column
