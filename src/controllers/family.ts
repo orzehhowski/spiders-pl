@@ -75,6 +75,18 @@ class FamilyController {
       if (!req.file) {
         throw new HttpError(422, "Image is required.");
       }
+
+      // check if latin name is taken
+      const isNameTaken = await Spider.findOne({
+        where: { latinName: req.body.latinName },
+      });
+      if (isNameTaken) {
+        throw new HttpError(
+          422,
+          "Family with this latin name allready exists."
+        );
+      }
+
       // set correct file path
       const src = req.file.path.replace("src/public/", "");
 

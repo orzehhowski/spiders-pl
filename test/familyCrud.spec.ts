@@ -158,7 +158,7 @@ describe("family controllers", () => {
     request
       .post("/family")
       .set("Authorization", `Bearer ${adminToken}`)
-      .field("latinName", "testus maximus")
+      .field("latinName", "testus maximusus")
       .field("name", "darownik przedziwny")
       .expect(422)
       .end((err, res) => {
@@ -166,6 +166,23 @@ describe("family controllers", () => {
         expect(res.body.message).to.be.equal("Image is required.");
         done();
       });
+  });
+
+  it("POST - should throw validation error cuz latin name is taken", async (done) => {
+    try {
+      const res = await request
+        .post("/family")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .attach("image", imagePath)
+        .field("latinName", "testus maximus")
+        .expect(422);
+      expect(res.body.message).to.be.equal(
+        "Family with this latin name allready exists."
+      );
+      done();
+    } catch (err) {
+      done(err);
+    }
   });
 
   it("PUT - should edit family correctly without image", (done) => {
@@ -209,7 +226,7 @@ describe("family controllers", () => {
       .attach("image", secondImagePath)
       .field("latinName", "Pardosa amentata")
       .field("name", "wałęsak zwyczajny")
-      .field("resources", "")
+      .field("resources", "https://google.com https://wikipedia.org")
       .expect(200)
       .end((err, res) => {
         imagesToDelete.push(res.body.family.image.src);
@@ -226,7 +243,9 @@ describe("family controllers", () => {
               expect(family.name).to.be.equal("wałęsak zwyczajny");
               expect(family.image.src).to.include("walesak.jpeg");
               expect(family.image.author).to.be.equal("");
-              expect(family.resources).to.be.equal("");
+              expect(family.resources).to.be.equal(
+                "https://google.com https://wikipedia.org"
+              );
             }
             done();
           })
@@ -270,6 +289,8 @@ describe("family controllers", () => {
           .catch((err) => done(err));
       });
   });
+
+  it("DELETE - ");
 
   after(async (done) => {
     try {
