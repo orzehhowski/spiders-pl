@@ -15,10 +15,15 @@ const request = supertest(app);
 describe("family controllers", () => {
   let nonAdminToken: string;
   let adminToken: string;
+  let nonAdminBearerToken: string;
+  let adminBearerToken: string;
+
   const imagePath = "test/img/darownik.jpeg";
   const secondImagePath = "test/img/walesak.jpeg";
+
   const adminId = 1;
   const notAdminId = 2;
+
   const imagesToDelete: Array<string> = [];
 
   before((done) => {
@@ -31,6 +36,7 @@ describe("family controllers", () => {
           .end((err, res) => {
             if (err) done(err);
             adminToken = res.body.token;
+            adminBearerToken = `Bearer ${adminToken}`;
           });
       })
       .then(() => {
@@ -41,6 +47,7 @@ describe("family controllers", () => {
           .end((err, res) => {
             if (err) done(err);
             nonAdminToken = res.body.token;
+            nonAdminBearerToken = `Bearer ${nonAdminToken}`;
             done();
           });
       })
@@ -98,7 +105,7 @@ describe("family controllers", () => {
   it("POST - should add a new family", (done) => {
     request
       .post("/family")
-      .set("Authorization", `Bearer ${adminToken}`)
+      .set("Authorization", adminBearerToken)
       .attach("image", imagePath)
       .field("latinName", "testus maximus")
       .field("name", "darownik przedziwny")
@@ -127,9 +134,9 @@ describe("family controllers", () => {
   it("POST - should add a suggestion of creating family", (done) => {
     request
       .post("/family")
-      .set("Authorization", `Bearer ${nonAdminToken}`)
+      .set("Authorization", nonAdminBearerToken)
       .attach("image", imagePath)
-      .field("latinName", "testus maximus")
+      .field("latinName", "testus maximusus")
       .field("name", "darownik przedziwny")
       .expect(200)
       .end((err, res) => {
@@ -138,7 +145,7 @@ describe("family controllers", () => {
 
         expect(res.body.message).to.be.equal("Create family suggestion sent.");
 
-        Suggestion.findOne({ where: { latinName: "testus maximus" } })
+        Suggestion.findOne({ where: { latinName: "testus maximusus" } })
           .then((suggestion) => {
             expect(suggestion).not.to.be.equal(null);
             if (suggestion) {
@@ -157,7 +164,7 @@ describe("family controllers", () => {
   it("POST - should throw 422 error cuz no image was provided", (done) => {
     request
       .post("/family")
-      .set("Authorization", `Bearer ${adminToken}`)
+      .set("Authorization", adminBearerToken)
       .field("latinName", "testus maximusus")
       .field("name", "darownik przedziwny")
       .expect(422)
@@ -168,28 +175,23 @@ describe("family controllers", () => {
       });
   });
 
-  it("POST - should throw validation error cuz latin name is taken", async (done) => {
-    try {
-      const res = await request
-        .post("/family")
-        .set("Authorization", `Bearer ${adminToken}`)
-        .attach("image", imagePath)
-        .field("latinName", "testus maximus")
-        .expect(422);
-      expect(res.body.message).to.be.equal(
-        "Family with this latin name allready exists."
-      );
-      done();
-    } catch (err) {
-      done(err);
-    }
+  it("POST - should throw validation error cuz latin name is taken", async () => {
+    const res = await request
+      .post("/family")
+      .set("Authorization", adminBearerToken)
+      .attach("image", imagePath)
+      .field("latinName", "testus maximus")
+      .expect(422);
+    expect(res.body.message).to.be.equal(
+      "Family with this latin name allready exists."
+    );
   });
 
   it("PUT - should edit family correctly without image", (done) => {
     request
       .put("/family/3")
-      .set("Authorization", `Bearer ${adminToken}`)
-      .field("latinName", "testus minimus")
+      .set("Authorization", adminBearerToken)
+      .field("latinName", "testus maximus")
       .field("resources", ["https://google.com", "https://wikipedia.org"])
       .field("imageAuthor", "Jacek Placek")
       .field("name", "")
@@ -199,7 +201,7 @@ describe("family controllers", () => {
         expect(res.body.message).to.be.equal("Family updated.");
 
         Family.findOne({
-          where: { latinName: "testus minimus" },
+          where: { latinName: "testus maximus" },
           include: Family.associations.image,
         })
           .then((family) => {
@@ -222,7 +224,7 @@ describe("family controllers", () => {
   it("PUT - should edit family correctly with image", (done) => {
     request
       .put("/family/3")
-      .set("Authorization", `Bearer ${adminToken}`)
+      .set("Authorization", adminBearerToken)
       .attach("image", secondImagePath)
       .field("latinName", "Pardosa amentata")
       .field("name", "wałęsak zwyczajny")
@@ -256,7 +258,7 @@ describe("family controllers", () => {
   it("PUT - should add a suggestion of editing a family", (done) => {
     request
       .put("/family/3")
-      .set("Authorization", `Bearer ${nonAdminToken}`)
+      .set("Authorization", nonAdminBearerToken)
       .attach("image", secondImagePath)
       .field("latinName", "Pardosa amentata")
       .field("name", "wałęsak zwyczajny")
@@ -290,21 +292,47 @@ describe("family controllers", () => {
       });
   });
 
-  it("DELETE - ");
+  it("PUT - should throw validation error cuz latin name is taken", async () => {
+    const res = await request
+      .put("/family/3")
+      .set("Authorization", adminBearerToken)
+      .field("latinName", "araneidae")
+      .expect(422);
+    expect(res.body.message).to.be.equal(
+      "Family with this latin name allready exists."
+    );
+  });
 
-  after(async (done) => {
-    try {
-      Image.drop();
-      Spider.drop();
-      Family.drop();
-      Suggestion.drop();
-      User.drop();
-      imagesToDelete.forEach((src) => {
-        unlinkImg(src);
-      });
-      done();
-    } catch (err) {
-      done(err);
-    }
+  it("DELETE - should delete family correctly", async () => {
+    const res = await request
+      .delete("/family/3")
+      .set("Authorization", adminBearerToken)
+      .expect(200);
+    expect(res.body.message).to.be.equal("Family deleted.");
+    const deleted = await Family.findOne({
+      where: { latinName: "Pardosa amentata" },
+    });
+    expect(deleted).to.be.equal(null);
+  });
+
+  it("DELETE - should throw validation error cuz family contains spiders", async () => {
+    const res = await request
+      .delete("/family/1")
+      .set("Authorization", adminBearerToken)
+      .expect(422);
+    expect(res.body.message).to.be.equal(
+      "You can't delete family containing spiders!"
+    );
+  });
+
+  after(async () => {
+    await Image.drop();
+    await Spider.drop();
+    await Family.drop();
+    await Suggestion.drop();
+    await User.drop();
+    imagesToDelete.forEach((src) => {
+      unlinkImg(src);
+    });
   });
 });

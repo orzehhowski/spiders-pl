@@ -77,7 +77,7 @@ class FamilyController {
       }
 
       // check if latin name is taken
-      const isNameTaken = await Spider.findOne({
+      const isNameTaken = await Family.findOne({
         where: { latinName: req.body.latinName },
       });
       if (isNameTaken) {
@@ -161,7 +161,7 @@ class FamilyController {
       const latinName = req.body.latinName;
 
       if (latinName) {
-        const isNameTaken = await Spider.findOne({
+        const isNameTaken = await Family.findOne({
           where: { latinName: latinName, id: { [Op.ne]: +req.params.id } },
         });
         if (isNameTaken) {
