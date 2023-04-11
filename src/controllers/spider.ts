@@ -46,6 +46,16 @@ class SpiderController {
     const familyId = +req.body.familyId;
 
     try {
+      const isLatinNameTaken = await Spider.findOne({
+        where: { latinName: req.body.latinName },
+      });
+      if (isLatinNameTaken) {
+        throw new HttpError(
+          422,
+          "Spider with this latin name allready exists."
+        );
+      }
+
       // check if image provided
       if (!req.file) {
         throw new HttpError(422, "Image is required.");
@@ -111,6 +121,7 @@ class SpiderController {
   }
 
   // PUT /spider/:id
+  // body: { latinName?, name?, behaviorDesc?, appearanceDesc?, resources? }
   async put(req: Request, res: Response, next: NextFunction) {
     const spiderId = +req.params.id;
     const latinName = req.body.latinName;

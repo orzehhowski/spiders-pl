@@ -58,7 +58,7 @@ export default class Spider extends Model {
   @BelongsTo(() => Family)
   family?: Family;
 
-  @HasMany(() => Image)
+  @HasMany(() => Image, { onDelete: "SET NULL" })
   images?: Image[];
 
   @CreatedAt
