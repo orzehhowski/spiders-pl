@@ -33,7 +33,7 @@ class FamilyController {
       }
 
       const { name, latinName, appearanceDesc, behaviorDesc } = family;
-      const resources = family.resources ? family.resources.split(" ") : [];
+      const sources = family.sources ? family.sources.split(" ") : [];
 
       // fetch species in family with images
       const spiders = await Spider.findAll({
@@ -47,7 +47,7 @@ class FamilyController {
         latinName,
         appearanceDesc,
         behaviorDesc,
-        resources,
+        sources,
         spiders,
       });
     } catch (err) {
@@ -56,18 +56,18 @@ class FamilyController {
   }
 
   // POST /family
-  // body: { image!: file, latinName!, name?, behaviorDesc?, appearanceDesc?, imageAuthor?, resources? }
+  // body: { image!: file, latinName!, name?, behaviorDesc?, appearanceDesc?, imageAuthor?, sources? }
   async post(req: Request, res: Response, next: NextFunction) {
-    // restore resources to string
-    let resourcesStr: string | null;
-    if (typeof req.body.resources === "string") {
-      resourcesStr = req.body.resources;
-    } else if (req.body.resources == null) {
-      resourcesStr = null;
+    // restore sources to string
+    let sourcesStr: string | null;
+    if (typeof req.body.sources === "string") {
+      sourcesStr = req.body.sources;
+    } else if (req.body.sources == null) {
+      sourcesStr = null;
     } else {
-      resourcesStr = "";
-      req.body.resources.forEach((source: string) => {
-        resourcesStr += source + " ";
+      sourcesStr = "";
+      req.body.sources.forEach((source: string) => {
+        sourcesStr += source + " ";
       });
     }
     try {
@@ -94,7 +94,7 @@ class FamilyController {
       if (req.isAdmin) {
         const newFamily = await Family.create({
           ...req.body,
-          resources: resourcesStr,
+          sources: sourcesStr,
           userId: req.userId,
           adminId: req.userId,
         });
@@ -117,7 +117,7 @@ class FamilyController {
         if (user) {
           const family = {
             ...req.body,
-            resources: resourcesStr,
+            sources: sourcesStr,
           };
           const suggestion = await user.$create("suggestion", {
             ...family,
@@ -148,7 +148,7 @@ class FamilyController {
   }
 
   // PUT /family/:id
-  // body: { image?: file, latinName?, name?, behaviorDesc?, appearanceDesc?, imageAuthor?, resources? }
+  // body: { image?: file, latinName?, name?, behaviorDesc?, appearanceDesc?, imageAuthor?, sources? }
   async put(req: Request, res: Response, next: NextFunction) {
     try {
       const family = await Family.findByPk(+req.params.id, {
@@ -172,18 +172,18 @@ class FamilyController {
         }
       }
 
-      // restore resources to string
-      let resourcesStr: string | null | undefined;
-      if (typeof req.body.resources === "string") {
-        resourcesStr = req.body.resources;
-      } else if (req.body.resources === undefined) {
-        resourcesStr = family.resources;
-      } else if (req.body.resources == null) {
-        resourcesStr = null;
+      // restore sources to string
+      let sourcesStr: string | null | undefined;
+      if (typeof req.body.sources === "string") {
+        sourcesStr = req.body.sources;
+      } else if (req.body.sources === undefined) {
+        sourcesStr = family.sources;
+      } else if (req.body.sources == null) {
+        sourcesStr = null;
       } else {
-        resourcesStr = "";
-        req.body.resources.forEach((source: string) => {
-          resourcesStr += source + " ";
+        sourcesStr = "";
+        req.body.sources.forEach((source: string) => {
+          sourcesStr += source + " ";
         });
       }
 
@@ -195,7 +195,7 @@ class FamilyController {
           family.image.src = req.file.path.replace("src/public/", "");
         }
         // update family
-        Object.assign(family, req.body, { resources: resourcesStr });
+        Object.assign(family, req.body, { sources: sourcesStr });
 
         if (req.body.imageAuthor) {
           family.image.author = req.body.imageAuthor;
@@ -220,7 +220,7 @@ class FamilyController {
         // check if image provided
         const src = req.file?.path.replace("src/public/", "") || null;
 
-        const newFamily = Object.assign(req.body, { resources: resourcesStr });
+        const newFamily = Object.assign(req.body, { sources: sourcesStr });
         const suggestion = await user.$create("suggestion", {
           ...newFamily,
           isNew: false,
@@ -252,7 +252,7 @@ class FamilyController {
   // DELETE /family:id
   async delete(req: Request, res: Response, next: NextFunction) {
     if (!req.isAdmin) {
-      return next(new HttpError(403, "Only admin can delete resources."));
+      return next(new HttpError(403, "Only admin can delete sources."));
     }
     const id = +req.params.id;
 

@@ -1,18 +1,20 @@
 import { Request, Response, NextFunction } from "express";
 import HttpError from "../errors/HttpError";
 import Suggestion from "../models/suggestion";
+import Family from "../models/family";
+import Spider from "../models/spider";
 
-const checkAdmin = (req: Request, next: NextFunction): void => {
+const checkAdmin = (req: Request): void => {
   if (!req.isAdmin) {
-    next(new HttpError(403, "User is not admin."));
+    throw new HttpError(403, "User is not admin.");
   }
 };
 
 class adminController {
   // GET /admin/suggestion
   async getSuggestions(req: Request, res: Response, next: NextFunction) {
-    checkAdmin(req, next);
     try {
+      checkAdmin(req);
       const suggestions = (await Suggestion.findAll()) || [];
       res.status(200).json({ message: "Suggestions received.", suggestions });
     } catch (err) {
@@ -20,15 +22,110 @@ class adminController {
     }
   }
 
+  // GET /admin/suggestion/:id
   async getSuggestionById(req: Request, res: Response, next: NextFunction) {
-    checkAdmin(req, next);
     const id = +req.params.id;
     try {
+      checkAdmin(req);
       const suggestion = await Suggestion.findByPk(id);
       if (!suggestion) {
-        next(new HttpError(404, "Suggestion not found."));
+        return next(new HttpError(404, "Suggestion not found."));
       }
       res.status(200).json({ message: "Suggestion received.", suggestion });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // POST /admin/accept/:id
+  // body: {name?, latinName?, appearanceDesc?, behaviorDesc?, sources?, familyId?}
+  async acceptSuggestion(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = +req.params.id;
+      checkAdmin(req);
+      const suggestion = await Suggestion.findByPk(id, {
+        include: Suggestion.associations.image,
+      });
+      if (!suggestion) {
+        return next(new HttpError(404, "Suggestion not found."));
+      }
+      const suggestionData = {
+        name: suggestion.name,
+        latinName: suggestion.latinName,
+        appearanceDesc: suggestion.appearanceDesc,
+        behaviorDesc: suggestion.behaviorDesc,
+        sources: suggestion.sources,
+        familyId: suggestion.familyId,
+      };
+
+      const bodyData = {
+        name: req.body.name,
+        latinName: req.body.latinName,
+        appearanceDesc: req.body.appearanceDesc,
+        behaviorDesc: req.body.behaviorDesc,
+        sources: req.body.sources,
+        familyId: req.body.familyId,
+      };
+
+      // check if latin name is taken
+      const latinName = bodyData.latinName || suggestionData.latinName || null;
+      if (latinName) {
+        if (suggestion.isFamily) {
+          if (await Family.findOne({ where: { latinName } })) {
+            return next(new HttpError(422, "Latin name is taken."));
+          }
+        } else {
+          if (await Spider.findOne({ where: { latinName } })) {
+            return next(new HttpError(422, "Latin name is taken."));
+          }
+        }
+      }
+
+      // update existing resource
+      if (!suggestion.isNew) {
+        let resource: Family | Spider | null;
+        if (suggestion.isFamily) {
+          resource = await Family.findByPk(suggestion.resourceId);
+        } else {
+          resource = await Spider.findByPk(suggestion.resourceId);
+        }
+        if (!resource) {
+          return next(
+            new HttpError(
+              422,
+              "Wrong suggestion data - resource to edit doesn't exist."
+            )
+          );
+        }
+
+        Object.assign(resource, suggestionData, bodyData);
+        await resource.save();
+
+        if (req.userId) {
+          suggestion.adminId = req.userId;
+        }
+        suggestion.accepted = true;
+        await suggestion.save();
+
+        return res.status(200).json({ message: "Resource updated." });
+      }
+      // or create new resource
+      else {
+        Object.assign(suggestionData, bodyData);
+        if (suggestion.isFamily) {
+          await Family.create(suggestionData);
+        } else {
+          await Spider.create(suggestionData);
+        }
+
+        if (req.userId) {
+          suggestion.adminId = req.userId;
+        }
+        suggestion.accepted = true;
+        await suggestion.save();
+
+        return res.status(201).json({ message: "Resource created." });
+      }
     } catch (err) {
       next(err);
     }

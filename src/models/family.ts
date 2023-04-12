@@ -34,7 +34,7 @@ export default class Family extends Model {
   behaviorDesc?: string;
 
   @Column(DataType.TEXT)
-  resources?: string;
+  sources?: string;
 
   @HasOne(() => Image)
   image!: Image;

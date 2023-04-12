@@ -33,7 +33,7 @@ export default class Spider extends Model {
   behaviorDesc?: string;
 
   @Column(DataType.TEXT)
-  resources?: string;
+  sources?: string;
 
   // user that suggested creation
   @ForeignKey(() => User)

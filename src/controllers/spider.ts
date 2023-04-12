@@ -19,7 +19,7 @@ class SpiderController {
         throw new HttpError(404, "Spider not found.");
       }
       Object.assign(spider, {
-        resources: spider.resources ? spider.resources.split(" ") : [],
+        sources: spider.sources ? spider.sources.split(" ") : [],
       });
       res.status(200).json(spider);
     } catch (err) {
@@ -28,18 +28,18 @@ class SpiderController {
   }
 
   // POST /spider
-  // body: { image!: file, familyId!, latinName!, name?, behaviorDesc?, appearanceDesc?, imageAuthor?, resources? }
+  // body: { image!: file, familyId!, latinName!, name?, behaviorDesc?, appearanceDesc?, imageAuthor?, sources? }
   async post(req: Request, res: Response, next: NextFunction) {
-    // restore resources to string
-    let resourcesStr: string | null;
-    if (typeof req.body.resources === "string") {
-      resourcesStr = req.body.resources;
-    } else if (req.body.resources == null) {
-      resourcesStr = null;
+    // restore sources to string
+    let sourcesStr: string | null;
+    if (typeof req.body.sources === "string") {
+      sourcesStr = req.body.sources;
+    } else if (req.body.sources == null) {
+      sourcesStr = null;
     } else {
-      resourcesStr = "";
-      req.body.resources.forEach((source: string) => {
-        resourcesStr += source + " ";
+      sourcesStr = "";
+      req.body.sources.forEach((source: string) => {
+        sourcesStr += source + " ";
       });
     }
 
@@ -78,7 +78,7 @@ class SpiderController {
       if (req.isAdmin) {
         const spider = await family.$create("spider", {
           ...req.body,
-          resources: resourcesStr,
+          sources: sourcesStr,
           userId: req.userId,
           adminId: req.userId,
         });
@@ -99,7 +99,7 @@ class SpiderController {
 
         const suggestion = await user.$create("suggestion", {
           ...req.body,
-          resources: resourcesStr,
+          sources: sourcesStr,
           isFamily: false,
           isNew: true,
         });
@@ -110,7 +110,7 @@ class SpiderController {
           message: "Create spider suggestion sent.",
           spider: {
             ...req.body,
-            resources: resourcesStr,
+            sources: sourcesStr,
             image: imageInfo,
           },
         });
@@ -121,7 +121,7 @@ class SpiderController {
   }
 
   // PUT /spider/:id
-  // body: { latinName?, name?, behaviorDesc?, appearanceDesc?, resources? }
+  // body: { latinName?, name?, behaviorDesc?, appearanceDesc?, sources? }
   async put(req: Request, res: Response, next: NextFunction) {
     const spiderId = +req.params.id;
     const latinName = req.body.latinName;
@@ -145,24 +145,24 @@ class SpiderController {
         throw new HttpError(404, "Spider not found.");
       }
 
-      // restore resources to string
-      let resourcesStr: string | null | undefined;
-      if (typeof req.body.resources === "string") {
-        resourcesStr = req.body.resources;
-      } else if (req.body.resources === undefined) {
-        resourcesStr = spider.resources;
-      } else if (req.body.resources == null) {
-        resourcesStr = "";
+      // restore sources to string
+      let sourcesStr: string | null | undefined;
+      if (typeof req.body.sources === "string") {
+        sourcesStr = req.body.sources;
+      } else if (req.body.sources === undefined) {
+        sourcesStr = spider.sources;
+      } else if (req.body.sources == null) {
+        sourcesStr = "";
       } else {
-        resourcesStr = "";
-        req.body.resources.forEach((source: string) => {
-          resourcesStr += source + " ";
+        sourcesStr = "";
+        req.body.sources.forEach((source: string) => {
+          sourcesStr += source + " ";
         });
       }
 
       // if user is admin update spider
       if (req.isAdmin) {
-        Object.assign(spider, req.body, { resources: resourcesStr });
+        Object.assign(spider, req.body, { sources: sourcesStr });
         await spider.save();
 
         res.status(200).json({ message: "Spider updated.", spider: spider });
@@ -175,7 +175,7 @@ class SpiderController {
         }
         user.$create("suggestion", {
           ...req.body,
-          resources: resourcesStr,
+          sources: sourcesStr,
           isFamily: false,
           isNew: false,
           resourceId: spider.id,
@@ -192,7 +192,7 @@ class SpiderController {
   async delete(req: Request, res: Response, next: NextFunction) {
     // check if user is admin
     if (!req.isAdmin) {
-      return next(new HttpError(403, "Only admin can delete resources."));
+      return next(new HttpError(403, "Only admin can delete sources."));
     }
 
     const id = +req.params.id;
