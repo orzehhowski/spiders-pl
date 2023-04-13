@@ -48,7 +48,7 @@ describe("spider controllers", () => {
   it("GET - should get first spider with no errors", async () => {
     const res = await request.get("/spider/1").expect(200);
     expect(res.body.latinName).to.be.equal("araneidae ogrodae");
-    expect(res.body.resources).to.be.lengthOf(1);
+    expect(res.body.sources).to.be.lengthOf(1);
     expect(res.body.images).to.be.lengthOf(2);
   });
 
@@ -154,7 +154,7 @@ describe("spider controllers", () => {
       .put("/spider/3")
       .set("Authorization", adminBearerToken)
       .field("latinName", "testus maximus")
-      .field("resources", ["https://google.com", "https://wikipedia.org"])
+      .field("sources", ["https://google.com", "https://wikipedia.org"])
       .field("name", "")
       .expect(200);
     expect(res.body.message).to.be.equal("Spider updated.");
@@ -165,7 +165,7 @@ describe("spider controllers", () => {
     expect(spider).to.not.be.equal(null);
     if (spider) {
       expect(spider.name).to.be.equal("");
-      expect(spider.resources).to.be.equal(
+      expect(spider.sources).to.be.equal(
         "https://google.com https://wikipedia.org "
       );
       expect(spider.userId).to.be.equal(adminId);
@@ -181,7 +181,7 @@ describe("spider controllers", () => {
   //     .field("latinName", "Pardosa amentata")
   //     .field("name", "wałęsak zwyczajny")
   //     .field("it", "doesn't exist lol")
-  //     .field("resources", "")
+  //     .field("sources", "")
   //     .expect(200);
 
   //   expect(res.body.message).to.be.equal("Update spider suggestion sent.");
@@ -195,7 +195,7 @@ describe("spider controllers", () => {
   //   expect(suggestion).not.to.be.equal(null);
   //   if (suggestion) {
   //     expect(suggestion.name).to.be.equal("wałęsak zwyczajny");
-  //     expect(suggestion.resources).to.be.equal("");
+  //     expect(suggestion.sources).to.be.equal("");
   //     expect(suggestion.userId).to.be.equal(notAdminId);
   //   }
   // });

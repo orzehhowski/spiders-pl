@@ -40,6 +40,15 @@ class adminController {
   // POST /admin/accept/:id
   // body: {name?, latinName?, appearanceDesc?, behaviorDesc?, sources?, familyId?}
   async acceptSuggestion(req: Request, res: Response, next: NextFunction) {
+    interface data {
+      name?: string;
+      latinName: string;
+      appearanceDesc?: string;
+      behaviorDesc?: string;
+      sources?: string;
+      familyId?: number;
+      userId?: number;
+    }
     try {
       const id = +req.params.id;
       checkAdmin(req);
@@ -49,22 +58,34 @@ class adminController {
       if (!suggestion) {
         return next(new HttpError(404, "Suggestion not found."));
       }
-      const suggestionData = {
+      const suggestionData: data = {
         name: suggestion.name,
         latinName: suggestion.latinName,
         appearanceDesc: suggestion.appearanceDesc,
         behaviorDesc: suggestion.behaviorDesc,
         sources: suggestion.sources,
         familyId: suggestion.familyId,
+        userId: suggestion.userId,
       };
 
-      const bodyData = {
+      const bodyData: data = {
         name: req.body.name,
         latinName: req.body.latinName,
         appearanceDesc: req.body.appearanceDesc,
         behaviorDesc: req.body.behaviorDesc,
         sources: req.body.sources,
         familyId: req.body.familyId,
+      };
+
+      const mergedData: data = {
+        name: bodyData.name || suggestionData.name,
+        latinName: bodyData.latinName || suggestionData.latinName,
+        appearanceDesc:
+          bodyData.appearanceDesc || suggestionData.appearanceDesc,
+        behaviorDesc: bodyData.behaviorDesc || suggestionData.behaviorDesc,
+        sources: bodyData.sources || suggestionData.sources,
+        familyId: bodyData.familyId || suggestionData.familyId,
+        userId: suggestionData.userId,
       };
 
       // check if latin name is taken
@@ -98,7 +119,8 @@ class adminController {
           );
         }
 
-        Object.assign(resource, suggestionData, bodyData);
+        // TODO BO TO SIE WYKURWI
+        Object.assign(resource, mergedData);
         await resource.save();
 
         if (req.userId) {
@@ -111,11 +133,24 @@ class adminController {
       }
       // or create new resource
       else {
-        Object.assign(suggestionData, bodyData);
+        let resource;
         if (suggestion.isFamily) {
-          await Family.create(suggestionData);
+          resource = await Family.create({
+            ...mergedData,
+            adminId: req.userId,
+          });
         } else {
-          await Spider.create(suggestionData);
+          resource = await Spider.create({
+            ...mergedData,
+            adminId: req.userId,
+          });
+        }
+
+        if (suggestion.image) {
+          resource.$create("image", {
+            src: suggestion.image.src,
+            author: suggestion.image.author,
+          });
         }
 
         if (req.userId) {
@@ -127,6 +162,7 @@ class adminController {
         return res.status(201).json({ message: "Resource created." });
       }
     } catch (err) {
+      console.log(err);
       next(err);
     }
   }

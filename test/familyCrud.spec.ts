@@ -192,7 +192,7 @@ describe("family controllers", () => {
       .put("/family/3")
       .set("Authorization", adminBearerToken)
       .field("latinName", "testus maximus")
-      .field("resources", ["https://google.com", "https://wikipedia.org"])
+      .field("sources", ["https://google.com", "https://wikipedia.org"])
       .field("imageAuthor", "Jacek Placek")
       .field("name", "")
       .expect(200)
@@ -210,7 +210,7 @@ describe("family controllers", () => {
               expect(family.name).to.be.equal("");
               expect(family.image.src).to.include("darownik.jpeg");
               expect(family.image.author).to.be.equal("Jacek Placek");
-              expect(family.resources).to.be.equal(
+              expect(family.sources).to.be.equal(
                 "https://google.com https://wikipedia.org "
               );
               expect(family.userId).to.be.equal(adminId);
@@ -228,7 +228,7 @@ describe("family controllers", () => {
       .attach("image", secondImagePath)
       .field("latinName", "Pardosa amentata")
       .field("name", "wałęsak zwyczajny")
-      .field("resources", "https://google.com https://wikipedia.org")
+      .field("sources", "https://google.com https://wikipedia.org")
       .expect(200)
       .end((err, res) => {
         imagesToDelete.push(res.body.family.image.src);
@@ -245,7 +245,7 @@ describe("family controllers", () => {
               expect(family.name).to.be.equal("wałęsak zwyczajny");
               expect(family.image.src).to.include("walesak.jpeg");
               expect(family.image.author).to.be.equal("");
-              expect(family.resources).to.be.equal(
+              expect(family.sources).to.be.equal(
                 "https://google.com https://wikipedia.org"
               );
             }
@@ -263,7 +263,7 @@ describe("family controllers", () => {
       .field("latinName", "Pardosa amentata")
       .field("name", "wałęsak zwyczajny")
       .field("it", "doesn't exist lol")
-      .field("resources", "")
+      .field("sources", "")
       .expect(200)
       .end((err, res) => {
         imagesToDelete.push(res.body.family.image.src);
@@ -283,7 +283,7 @@ describe("family controllers", () => {
               } else {
                 throw new Error("Suggestion has no image!");
               }
-              expect(suggestion.resources).to.be.equal("");
+              expect(suggestion.sources).to.be.equal("");
               expect(suggestion.userId).to.be.equal(notAdminId);
             }
             done();
