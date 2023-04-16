@@ -34,4 +34,14 @@ router.post(
   adminController.acceptSuggestion
 );
 
+router.post(
+  "/reject/:id",
+  excludeFile,
+  isAuth,
+  isAdmin,
+  param("id", "ID must be a number!").isNumeric(),
+  checkValidation,
+  adminController.rejectSuggestion
+);
+
 export default router;

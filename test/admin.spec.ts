@@ -79,6 +79,16 @@ describe("admin controllers", () => {
       latinName: "Larinioides cornut",
     });
 
+    // suggestion to reject, id = 6
+    await Suggestion.create({
+      userId: 2,
+      resourceId: 1,
+      isNew: false,
+      isFamily: false,
+      name: "gupotyyy",
+      latinName: "jdjdjdjd",
+    });
+
     const res = await request
       .post("/auth/login")
       .send({ email: "admin@admin.pl", password: "wlodzimierzbialy123" })
@@ -103,7 +113,7 @@ describe("admin controllers", () => {
       .expect(200);
 
     expect(res.body.message).to.be.equal("Suggestions received.");
-    expect(res.body.suggestions).to.be.lengthOf(5);
+    expect(res.body.suggestions).to.be.lengthOf(6);
     expect(res.body.suggestions[0].isNew).to.be.true;
     expect(res.body.suggestions[0].isFamily).to.be.true;
     expect(res.body.suggestions[0].latinName).to.be.equal("testtest");
@@ -326,6 +336,23 @@ describe("admin controllers", () => {
     if (acceptedSuggestion) {
       expect(acceptedSuggestion.accepted).to.be.true;
       expect(acceptedSuggestion.adminId).to.be.equal(adminId);
+    }
+  });
+
+  it("should reject a suggestion", async () => {
+    const res = await request
+      .post("/admin/reject/6")
+      .set("Authorization", adminBearerToken)
+      .expect(200);
+
+    expect(res.body.message).to.be.equal("Suggestion rejected.");
+    const rejected = await Suggestion.findByPk(6);
+    if (rejected) {
+      expect(rejected.latinName).to.be.equal("jdjdjdjd");
+      expect(rejected.rejected).to.be.true;
+      expect(rejected.adminId).to.be.equal(adminId);
+    } else {
+      throw new chai.AssertionError("Rejected suggestion not found");
     }
   });
 

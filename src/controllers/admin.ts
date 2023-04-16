@@ -203,6 +203,33 @@ class adminController {
       next(err);
     }
   }
+
+  // POST /admin/reject/:id
+  async rejectSuggestion(req: Request, res: Response, next: NextFunction) {
+    try {
+      checkAdmin(req);
+      const id = +req.params.id;
+
+      const suggestion = await Suggestion.findByPk(id);
+
+      if (!suggestion) {
+        return next(new HttpError(404, "Suggestion not found."));
+      }
+
+      if (suggestion.accepted || suggestion.rejected) {
+        return next(new HttpError(400, "Suggestion outdated."));
+      }
+
+      suggestion.rejected = true;
+      if (req.userId) {
+        suggestion.adminId = req.userId;
+      }
+      await suggestion.save();
+      return res.status(200).json({ message: "Suggestion rejected." });
+    } catch (err) {
+      next(err);
+    }
+  }
 }
 
 export default new adminController();
