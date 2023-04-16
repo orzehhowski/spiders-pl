@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
 import HttpError from "../errors/HttpError";
+import User from "../models/user";
 
 type Token = {
   userId: string;
@@ -10,7 +11,7 @@ type Token = {
   exp: number;
 };
 
-export default (req: Request, res: Response, next: NextFunction) => {
+export default async (req: Request, res: Response, next: NextFunction) => {
   let token = req.get("Authorization");
 
   // check if Authorization header was provided
@@ -50,7 +51,19 @@ export default (req: Request, res: Response, next: NextFunction) => {
     return next(new HttpError(401, "Authorization failed - wrong User ID."));
   }
 
-  req.userId = +decodedToken.userId;
+  const user = await User.findByPk(+decodedToken.userId, {
+    attributes: ["isAdmin", "isBanned"],
+  });
+
+  if (user) {
+    if (user.isBanned) {
+      return next(new HttpError(401, "Authorization failed - User is banned."));
+    }
+    req.userId = +decodedToken.userId;
+    req.isAdmin = !!user.isAdmin;
+  } else {
+    return next(new HttpError(401, "Authorization failed - User not found."));
+  }
 
   next();
 };

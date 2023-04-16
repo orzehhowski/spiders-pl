@@ -356,6 +356,34 @@ describe("admin controllers", () => {
     }
   });
 
+  it("should ban user and unban", async () => {
+    const res = await request
+      .post("/admin/ban/2")
+      .set("Authorization", adminBearerToken)
+      .expect(200);
+
+    expect(res.body.message).to.be.equal("User banned.");
+
+    const user = await User.findByPk(2);
+
+    if (user) {
+      expect(user.isBanned).to.be.true;
+    }
+
+    const secondRes = await request
+      .post("/admin/unban/2")
+      .set("Authorization", adminBearerToken)
+      .expect(200);
+
+    expect(secondRes.body.message).to.be.equal("User unbanned.");
+
+    const userAgain = await User.findByPk(2);
+
+    if (userAgain) {
+      expect(userAgain.isBanned).to.be.false;
+    }
+  });
+
   after(async () => {
     await Image.drop();
     await Spider.drop();

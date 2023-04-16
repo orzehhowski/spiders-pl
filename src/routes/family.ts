@@ -2,7 +2,6 @@ import { Router } from "express";
 
 import excludeFile from "../middlewares/excludeFile";
 import isAuth from "../middlewares/isAuth";
-import isAdmin from "../middlewares/isAdmin";
 import familyController from "../controllers/family";
 import { body, param } from "express-validator";
 import checkValidation from "../middlewares/checkValidation";
@@ -20,7 +19,6 @@ router.get(
 router.post(
   "/",
   isAuth,
-  isAdmin,
   body("latinName", "Latin name is required!").notEmpty(),
   checkValidation,
   familyController.post
@@ -28,7 +26,6 @@ router.post(
 router.put(
   "/:id",
   isAuth,
-  isAdmin,
   param("id", "ID must be a number!").isNumeric(),
   checkValidation,
   familyController.put
@@ -37,7 +34,6 @@ router.delete(
   "/:id",
   excludeFile,
   isAuth,
-  isAdmin,
   param("id", "ID must be a number!").isNumeric(),
   checkValidation,
   familyController.delete

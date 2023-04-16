@@ -5,7 +5,6 @@ import authController from "../controllers/auth";
 import { body, param } from "express-validator";
 import checkValidation from "../middlewares/checkValidation";
 import isAuth from "../middlewares/isAuth";
-import isAdmin from "../middlewares/isAdmin";
 
 const router = Router();
 
@@ -31,14 +30,13 @@ router.put(
   "/set-admin/:email",
   excludeFile,
   isAuth,
-  isAdmin,
   param("email", "Incorrect Email.").isEmail(),
   checkValidation,
   authController.setAdmin
 );
 
 // authorization testing route
-router.get("/test", excludeFile, isAuth, isAdmin, (req, res) => {
+router.get("/test", excludeFile, isAuth, (req, res) => {
   res.status(200).json({ message: "Alles gut!" });
 });
 

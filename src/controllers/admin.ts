@@ -4,6 +4,7 @@ import Suggestion from "../models/suggestion";
 import Family from "../models/family";
 import Spider from "../models/spider";
 import { Op } from "sequelize";
+import User from "../models/user";
 
 const checkAdmin = (req: Request): void => {
   if (!req.isAdmin) {
@@ -226,6 +227,52 @@ class adminController {
       }
       await suggestion.save();
       return res.status(200).json({ message: "Suggestion rejected." });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // POST /admin/ban/:id
+  async banUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      checkAdmin(req);
+      const id = +req.params.id;
+      const user = await User.findByPk(id);
+
+      if (!user) {
+        return next(new HttpError(404, "User not found."));
+      }
+
+      if (user.isAdmin) {
+        return next(new HttpError(400, "Admin can't be banned."));
+      }
+
+      user.isBanned = true;
+      await user.save();
+      return res.status(200).json({ message: "User banned." });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // POST /admin/unban/:id
+  async unbanUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      checkAdmin(req);
+      const id = +req.params.id;
+      const user = await User.findByPk(id);
+
+      if (!user) {
+        return next(new HttpError(404, "User not found."));
+      }
+
+      if (!user.isBanned) {
+        return next(new HttpError(400, "User is not banned."));
+      }
+
+      user.isBanned = false;
+      await user.save();
+      return res.status(200).json({ message: "User unbanned." });
     } catch (err) {
       next(err);
     }
