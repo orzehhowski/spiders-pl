@@ -17,7 +17,6 @@ import User from "./user";
 
 @Table
 export default class Spider extends Model {
-  @Unique(true)
   @Column
   name?: string;
 

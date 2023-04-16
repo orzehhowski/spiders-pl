@@ -18,7 +18,6 @@ import Image from "./image";
 
 @Table
 export default class Family extends Model {
-  @Unique(true)
   @Column
   name?: string;
 

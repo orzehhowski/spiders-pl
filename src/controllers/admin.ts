@@ -3,6 +3,7 @@ import HttpError from "../errors/HttpError";
 import Suggestion from "../models/suggestion";
 import Family from "../models/family";
 import Spider from "../models/spider";
+import { Op } from "sequelize";
 
 const checkAdmin = (req: Request): void => {
   if (!req.isAdmin) {
@@ -41,8 +42,9 @@ class adminController {
   // body: {name?, latinName?, appearanceDesc?, behaviorDesc?, sources?, familyId?}
   async acceptSuggestion(req: Request, res: Response, next: NextFunction) {
     interface data {
+      [key: string]: string | number | undefined;
       name?: string;
-      latinName: string;
+      latinName?: string;
       appearanceDesc?: string;
       behaviorDesc?: string;
       sources?: string;
@@ -58,6 +60,20 @@ class adminController {
       if (!suggestion) {
         return next(new HttpError(404, "Suggestion not found."));
       }
+
+      if (suggestion.accepted || suggestion.rejected) {
+        return next(new HttpError(400, "Suggestion outdated."));
+      }
+
+      const fieldNames = [
+        "name",
+        "latinName",
+        "appearanceDesc",
+        "behaviorDesc",
+        "sources",
+        "familyId",
+      ];
+
       const suggestionData: data = {
         name: suggestion.name,
         latinName: suggestion.latinName,
@@ -77,27 +93,48 @@ class adminController {
         familyId: req.body.familyId,
       };
 
-      const mergedData: data = {
-        name: bodyData.name || suggestionData.name,
-        latinName: bodyData.latinName || suggestionData.latinName,
-        appearanceDesc:
-          bodyData.appearanceDesc || suggestionData.appearanceDesc,
-        behaviorDesc: bodyData.behaviorDesc || suggestionData.behaviorDesc,
-        sources: bodyData.sources || suggestionData.sources,
-        familyId: bodyData.familyId || suggestionData.familyId,
-        userId: suggestionData.userId,
-      };
+      const mergedData: data = {};
+      const nonUndefinedData: data = {};
+
+      fieldNames.forEach((field) => {
+        mergedData[field] =
+          bodyData[field] ?? suggestionData[field] ?? undefined;
+        if (mergedData[field] !== undefined) {
+          nonUndefinedData[field] = mergedData[field];
+        }
+      });
 
       // check if latin name is taken
       const latinName = bodyData.latinName || suggestionData.latinName || null;
+      // mmmm 4 ifs nested
       if (latinName) {
-        if (suggestion.isFamily) {
-          if (await Family.findOne({ where: { latinName } })) {
-            return next(new HttpError(422, "Latin name is taken."));
+        if (suggestion.isNew) {
+          if (suggestion.isFamily) {
+            if (await Family.findOne({ where: { latinName } })) {
+              return next(new HttpError(422, "Latin name is taken."));
+            }
+          } else {
+            if (await Spider.findOne({ where: { latinName } })) {
+              return next(new HttpError(422, "Latin name is taken."));
+            }
           }
         } else {
-          if (await Spider.findOne({ where: { latinName } })) {
-            return next(new HttpError(422, "Latin name is taken."));
+          if (suggestion.isFamily) {
+            if (
+              await Family.findOne({
+                where: { latinName, id: { [Op.ne]: suggestion.resourceId } },
+              })
+            ) {
+              return next(new HttpError(422, "Latin name is taken."));
+            }
+          } else {
+            if (
+              await Spider.findOne({
+                where: { latinName, id: { [Op.ne]: suggestion.resourceId } },
+              })
+            ) {
+              return next(new HttpError(422, "Latin name is taken."));
+            }
           }
         }
       }
@@ -119,9 +156,7 @@ class adminController {
           );
         }
 
-        // TODO BO TO SIE WYKURWI
-        Object.assign(resource, mergedData);
-        await resource.save();
+        await resource.update(nonUndefinedData);
 
         if (req.userId) {
           suggestion.adminId = req.userId;
@@ -137,11 +172,13 @@ class adminController {
         if (suggestion.isFamily) {
           resource = await Family.create({
             ...mergedData,
+            userId: suggestionData.userId,
             adminId: req.userId,
           });
         } else {
           resource = await Spider.create({
             ...mergedData,
+            userId: suggestionData.userId,
             adminId: req.userId,
           });
         }
