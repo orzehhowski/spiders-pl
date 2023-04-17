@@ -11,6 +11,7 @@ import spiderRoutes from "./routes/spider";
 import imageRoutes from "./routes/image";
 import adminRoutes from "./routes/admin";
 import authRoutes from "./routes/auth";
+import ownerRoutes from "./routes/owner";
 // import initalSeed from "./util/initalSeed";
 import errorMiddleware from "./errors/errorMiddleware";
 
@@ -62,6 +63,7 @@ app.use("/spider", spiderRoutes);
 app.use("/image", imageRoutes);
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
+app.use("/sudo", ownerRoutes);
 
 // ERROR MIDDLEWARES
 

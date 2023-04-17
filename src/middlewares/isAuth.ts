@@ -52,7 +52,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
   }
 
   const user = await User.findByPk(+decodedToken.userId, {
-    attributes: ["isAdmin", "isBanned"],
+    attributes: ["isAdmin", "isBanned", "isOwner"],
   });
 
   if (user) {
@@ -61,6 +61,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
     }
     req.userId = +decodedToken.userId;
     req.isAdmin = !!user.isAdmin;
+    req.isOwner = !!user.isOwner;
   } else {
     return next(new HttpError(401, "Authorization failed - User not found."));
   }

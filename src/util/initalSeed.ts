@@ -19,6 +19,7 @@ export default async (options?: Options) => {
         email: "admin@admin.pl",
         passwordHash,
         isAdmin: true,
+        isOwner: true,
       });
       const secondPasswordHash = await hash("jeremiaszruzowy321", 12);
       if (!secondPasswordHash) {

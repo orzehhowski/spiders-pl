@@ -30,6 +30,9 @@ export default class User extends Model {
   isAdmin?: boolean;
 
   @Column
+  isOwner?: boolean;
+
+  @Column
   isBanned?: boolean;
 
   @Column

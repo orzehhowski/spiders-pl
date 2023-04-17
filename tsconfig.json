@@ -118,7 +118,6 @@
     "./src/app.ts",
     "./src/run.ts",
     "./src/middlewares/checkValidation.ts",
-    "./src/middlewares/isAdmin.ts",
     "./src/middlewares/excludeFile.ts",
     "./src/middlewares/isAuth.ts",
     "./src/models/image.ts",
@@ -128,6 +127,8 @@
     "src/models/suggestion.ts",
     "./src/errors/HttpError.ts",
     "./src/errors/errorclg.ts",
-    "./src/errors/errorMiddleware.ts"
+    "./src/errors/errorMiddleware.ts",
+    "./src/controllers/owner.ts",
+    "./src/routes/owner.ts"
   ]
 }
