@@ -356,7 +356,7 @@ describe("admin controllers", () => {
     }
   });
 
-  it("should ban user and unban", async () => {
+  it("should ban user and then unban", async () => {
     const res = await request
       .post("/admin/ban/2")
       .set("Authorization", adminBearerToken)
@@ -371,7 +371,7 @@ describe("admin controllers", () => {
     }
 
     const secondRes = await request
-      .post("/admin/unban/2")
+      .post("/admin/ban/2?undo")
       .set("Authorization", adminBearerToken)
       .expect(200);
 

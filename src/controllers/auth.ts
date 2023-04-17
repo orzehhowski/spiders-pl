@@ -74,29 +74,6 @@ class AuthController {
       next(err);
     }
   }
-
-  // PUT /auth/set-admin/:email?delete
-  async setAdmin(req: Request, res: Response, next: NextFunction) {
-    if (!req.isAdmin) {
-      return next(new HttpError(403, "Admin rights required."));
-    }
-
-    const email = req.params.email;
-    const toDelete = req.query.delete !== undefined;
-
-    try {
-      const user = await User.findOne({ where: { email } });
-      if (!user) {
-        return next(new HttpError(404, "User not found."));
-      }
-
-      user.isAdmin = !toDelete;
-      await user.save();
-      res.status(200).json({ message: "User admin rights changed." });
-    } catch (err) {
-      next(err);
-    }
-  }
 }
 
 export default new AuthController();

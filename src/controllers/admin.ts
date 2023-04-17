@@ -232,12 +232,13 @@ class adminController {
     }
   }
 
-  // POST /admin/ban/:id
+  // POST /admin/ban/:id?undo
   async banUser(req: Request, res: Response, next: NextFunction) {
     try {
       checkAdmin(req);
       const id = +req.params.id;
       const user = await User.findByPk(id);
+      const undo = req.query.undo !== undefined;
 
       if (!user) {
         return next(new HttpError(404, "User not found."));
@@ -247,36 +248,46 @@ class adminController {
         return next(new HttpError(400, "Admin can't be banned."));
       }
 
-      user.isBanned = true;
+      if (undo) {
+        if (!user.isBanned) {
+          return next(new HttpError(400, "User is not banned."));
+        }
+        user.isBanned = false;
+      } else {
+        user.isBanned = true;
+      }
+
       await user.save();
-      return res.status(200).json({ message: "User banned." });
+      return res
+        .status(200)
+        .json({ message: undo ? "User unbanned." : "User banned." });
     } catch (err) {
       next(err);
     }
   }
 
-  // POST /admin/unban/:id
-  async unbanUser(req: Request, res: Response, next: NextFunction) {
-    try {
-      checkAdmin(req);
-      const id = +req.params.id;
-      const user = await User.findByPk(id);
+  // PUT /admin/set-admin/:id?undo
+  //   async setAdmin(req: Request, res: Response, next: NextFunction) {
+  //     if (!req.isAdmin) {
+  //       return next(new HttpError(403, "Admin rights required."));
+  //     }
 
-      if (!user) {
-        return next(new HttpError(404, "User not found."));
-      }
+  //     const email = req.params.email;
+  //     const undo = req.query.undo !== undefined;
 
-      if (!user.isBanned) {
-        return next(new HttpError(400, "User is not banned."));
-      }
+  //     try {
+  //       const user = await User.findOne({ where: { email } });
+  //       if (!user) {
+  //         return next(new HttpError(404, "User not found."));
+  //       }
 
-      user.isBanned = false;
-      await user.save();
-      return res.status(200).json({ message: "User unbanned." });
-    } catch (err) {
-      next(err);
-    }
-  }
+  //       user.isAdmin = !undo;
+  //       await user.save();
+  //       res.status(200).json({ message: "User admin rights changed." });
+  //     } catch (err) {
+  //       next(err);
+  //     }
+  //   }
 }
 
 export default new adminController();

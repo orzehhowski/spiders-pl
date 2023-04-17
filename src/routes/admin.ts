@@ -43,13 +43,4 @@ router.post(
   adminController.banUser
 );
 
-router.post(
-  "/unban/:id",
-  excludeFile,
-  isAuth,
-  param("id", "ID must be a number!").isNumeric(),
-  checkValidation,
-  adminController.unbanUser
-);
-
 export default router;

@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import excludeFile from "../middlewares/excludeFile";
 import authController from "../controllers/auth";
-import { body, param } from "express-validator";
+import { body } from "express-validator";
 import checkValidation from "../middlewares/checkValidation";
 import isAuth from "../middlewares/isAuth";
 
@@ -24,15 +24,6 @@ router.post(
   body("password", "No password provided.").notEmpty(),
   checkValidation,
   authController.login
-);
-
-router.put(
-  "/set-admin/:email",
-  excludeFile,
-  isAuth,
-  param("email", "Incorrect Email.").isEmail(),
-  checkValidation,
-  authController.setAdmin
 );
 
 // authorization testing route
