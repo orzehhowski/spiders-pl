@@ -49,6 +49,7 @@ class FamilyController {
         behaviorDesc,
         sources,
         spiders,
+        id,
       });
     } catch (err) {
       next(err);
@@ -171,7 +172,7 @@ class FamilyController {
           );
         }
       }
-
+      // TO JEST ZJEBANE BO JAK NIE MA SOURCES W BODY TO WYSYLA ZE STARYM A NIE MA TAK BYC
       // restore sources to string
       let sourcesStr: string | null | undefined;
       if (typeof req.body.sources === "string") {

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import HttpError from "../errors/HttpError";
 import User from "../models/user";
 
-class adminController {
+class ownerController {
   // POST /sudo/set-admin/:id?undo
   async setAdmin(req: Request, res: Response, next: NextFunction) {
     if (!req.isOwner) {
@@ -33,4 +33,4 @@ class adminController {
   }
 }
 
-export default new adminController();
+export default new ownerController();
