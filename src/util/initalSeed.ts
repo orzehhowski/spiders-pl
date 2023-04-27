@@ -28,7 +28,7 @@ export default async (options?: Options) => {
       const secondUser = await User.create({
         username: "not admin",
         email: "test@test.pl",
-        passwordHash,
+        passwordHash: secondPasswordHash,
       });
       const firstSuggestion = await secondUser.$create("suggestion", {
         isNew: true,

@@ -56,7 +56,7 @@ class AuthController {
         return next(new HttpError(401, "Incorrect email or password."));
       }
 
-      const isPasswordCorrect = compare(password, user.passwordHash);
+      const isPasswordCorrect = await compare(password, user.passwordHash);
       if (!isPasswordCorrect) {
         return next(new HttpError(401, "Incorrect email or password."));
       }
