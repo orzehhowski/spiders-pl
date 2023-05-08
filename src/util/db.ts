@@ -20,13 +20,9 @@ const initSequelize = (options?: Options) => {
     password: process.env.DB_PASSWORD,
   });
 
-  connection.query(
-    `CREATE DATABASE IF NOT EXISTS ${dbName}`,
-    function (err, results) {
-      console.log(results);
-      err && console.log(err);
-    }
-  );
+  connection.query(`CREATE DATABASE IF NOT EXISTS ${dbName}`, function (err) {
+    err && console.log(err);
+  });
 
   connection.end();
 
