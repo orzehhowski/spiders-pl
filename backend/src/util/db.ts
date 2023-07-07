@@ -11,11 +11,10 @@ interface Options {
 }
 
 const initSequelize = (options?: Options) => {
-  let db: Sequelize;
   const dbName = options?.isTesting ? "test_spiders_pl" : "spiders_pl";
 
   const connection = mysql.createConnection({
-    host: "db",
+    host: "sql_db",
     user: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
   });
@@ -30,8 +29,8 @@ const initSequelize = (options?: Options) => {
     database: dbName,
     username: process.env.DB_USERNAME,
     dialect: "mysql",
-    host: "db",
-    port: 3306,
+    host: "sql_db",
+    port: parseInt(process.env.DB_PORT || "3306"),
     password: process.env.DB_PASSWORD,
     models: [Family, Spider, Image, User, Suggestion],
     logging: options?.isTesting ? false : (sql) => console.log(sql),

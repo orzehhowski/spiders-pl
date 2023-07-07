@@ -1,17 +1,34 @@
-version: "1"
+version: "3.8"
+
 services:
-  web:
-    build: .
+  backend:
+    build: ./backend
     ports:
       - "8080:8080"
-    environment:
-      - SECRET_KEY=${SECRET_KEY}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
-  db:
+    env_file: ./backend/env/backend.env
+    volumes:
+      - ./backend/src:/app/src
+    depends_on:
+      - sql_db
+
+  sql_db:
     image: mysql
     restart: always
-    environment:
-      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+    env_file:
+      - ./backend/env/database.env
+    volumes:
+      - database:/var/lib/mysql
+
+  frontend:
+    build: ./frontend
     ports:
-      - "3307:3306"
+      - "5173:5173"
+    volumes:
+      - ./frontend/src:/app/src
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
+
+volumes:
+  database:
