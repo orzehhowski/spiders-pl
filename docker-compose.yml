@@ -1,6 +1,7 @@
 version: "3.8"
 
 services:
+  # app services
   backend:
     build: ./backend
     ports:
@@ -29,6 +30,21 @@ services:
     tty: true
     depends_on:
       - backend
+
+  # utility services
+  npm-back:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/npm-back.dockerfile
+    volumes:
+      - "./backend/node_modules:/app/backend/node_modules"
+
+  npm-front:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/npm-front.dockerfile
+    volumes:
+      - "./frontend/node_modules:/app/frontend/node_modules"
 
 volumes:
   database:
