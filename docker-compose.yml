@@ -46,5 +46,14 @@ services:
     volumes:
       - "./frontend/node_modules:/app/frontend/node_modules"
 
+  test-back:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/test-back.dockerfile
+    env_file:
+      - ./backend/env/backend.env
+    depends_on:
+      - sql_db
+
 volumes:
   database:

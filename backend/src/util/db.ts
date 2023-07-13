@@ -14,7 +14,7 @@ const initSequelize = (options?: Options) => {
   const dbName = options?.isTesting ? "test_spiders_pl" : "spiders_pl";
 
   const connection = mysql.createConnection({
-    host: "sql_db",
+    host: process.env.DB_HOST,
     user: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
   });
@@ -29,7 +29,7 @@ const initSequelize = (options?: Options) => {
     database: dbName,
     username: process.env.DB_USERNAME,
     dialect: "mysql",
-    host: "sql_db",
+    host: process.env.DB_HOST,
     port: parseInt(process.env.DB_PORT || "3306"),
     password: process.env.DB_PASSWORD,
     models: [Family, Spider, Image, User, Suggestion],
