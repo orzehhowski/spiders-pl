@@ -13,15 +13,25 @@ class SpiderController {
   async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const spider = await Spider.findByPk(+req.params.id, {
-        include: Spider.associations.images,
+        include: [Spider.associations.images, Spider.associations.sources],
       });
       if (!spider) {
         throw new HttpError(404, "Spider not found.");
       }
-      Object.assign(spider, {
-        sources: spider.sources ? spider.sources.split(" ") : [],
+      const sourcesStrings = spider.sources
+        ? spider.sources.map((s) => s.source)
+        : [];
+      const { name, latinName, appearanceDesc, behaviorDesc, id, images } =
+        spider;
+      res.status(200).json({
+        name,
+        latinName,
+        appearanceDesc,
+        behaviorDesc,
+        id,
+        images,
+        sources: sourcesStrings,
       });
-      res.status(200).json(spider);
     } catch (err) {
       next(err);
     }
@@ -30,19 +40,6 @@ class SpiderController {
   // POST /spider
   // body: { image!: file, familyId!, latinName!, name?, behaviorDesc?, appearanceDesc?, imageAuthor?, sources? }
   async post(req: Request, res: Response, next: NextFunction) {
-    // restore sources to string
-    let sourcesStr: string | null;
-    if (typeof req.body.sources === "string") {
-      sourcesStr = req.body.sources;
-    } else if (req.body.sources == null) {
-      sourcesStr = null;
-    } else {
-      sourcesStr = "";
-      req.body.sources.forEach((source: string) => {
-        sourcesStr += source + " ";
-      });
-    }
-
     const familyId = +req.body.familyId;
 
     try {
@@ -78,16 +75,21 @@ class SpiderController {
       if (req.isAdmin) {
         const spider = await family.$create("spider", {
           ...req.body,
-          sources: sourcesStr,
           userId: req.userId,
           adminId: req.userId,
         });
 
         await spider.$create("image", imageInfo);
-
+        req.body.sources?.forEach(async (source: string) => {
+          await spider.$create("source", { source });
+        });
         res.status(201).json({
           message: "Spider created.",
-          spider: { ...spider.dataValues, image: imageInfo },
+          spider: {
+            ...spider.dataValues,
+            image: imageInfo,
+            sources: req.body.sources || [],
+          },
         });
       }
       // else send suggestion
@@ -99,18 +101,18 @@ class SpiderController {
 
         const suggestion = await user.$create("suggestion", {
           ...req.body,
-          sources: sourcesStr,
           isFamily: false,
           isNew: true,
         });
 
         await suggestion.$create("image", imageInfo);
-
+        req.body.sources?.forEach(async (source: string) => {
+          await suggestion.$create("source", { source });
+        });
         res.status(200).json({
           message: "Create spider suggestion sent.",
           spider: {
             ...req.body,
-            sources: sourcesStr,
             image: imageInfo,
           },
         });
@@ -140,29 +142,33 @@ class SpiderController {
       }
 
       // find spider
-      const spider = await Spider.findByPk(spiderId);
+      const spider = await Spider.findByPk(spiderId, {
+        include: Spider.associations.sources,
+      });
       if (!spider) {
         throw new HttpError(404, "Spider not found.");
       }
 
-      // restore sources to string
-      let sourcesStr: string | null | undefined;
-      if (typeof req.body.sources === "string") {
-        sourcesStr = req.body.sources;
-      } else if (req.body.sources === undefined) {
-        sourcesStr = spider.sources;
-      } else if (req.body.sources == null) {
-        sourcesStr = "";
-      } else {
-        sourcesStr = "";
-        req.body.sources.forEach((source: string) => {
-          sourcesStr += source + " ";
-        });
-      }
-
       // if user is admin update spider
       if (req.isAdmin) {
-        Object.assign(spider, req.body, { sources: sourcesStr });
+        // if there are new sources...
+        if (req.body.sources) {
+          // delete these old
+          if (spider.sources) {
+            await Promise.all(
+              spider.sources.map(async (source) => {
+                await source.destroy();
+              })
+            );
+          }
+          // and create new
+          await Promise.all(
+            req.body.sources.map(async (source: string) => {
+              await spider.$create("source", { source });
+            })
+          );
+        }
+        Object.assign(spider, req.body);
         await spider.save();
 
         res.status(200).json({ message: "Spider updated.", spider: spider });
@@ -173,13 +179,18 @@ class SpiderController {
         if (!user) {
           throw new HttpError(401, "User not found.");
         }
-        user.$create("suggestion", {
+        const suggestion = await user.$create("suggestion", {
           ...req.body,
-          sources: sourcesStr,
           isFamily: false,
           isNew: false,
           resourceId: spider.id,
         });
+
+        if (req.body.sources) {
+          req.body.sources.forEach(async (source: string) => {
+            await suggestion.$create("source", { source });
+          });
+        }
 
         res.status(200).json({ message: "Update spider suggestion sent." });
       }
@@ -200,8 +211,12 @@ class SpiderController {
     const includeImages: boolean = req.query.includeImages !== undefined;
 
     try {
+      const include = [Spider.associations.sources];
+      if (includeImages) {
+        include.push(Spider.associations.sources);
+      }
       const spider = await Spider.findByPk(id, {
-        include: includeImages ? Spider.associations.images : undefined,
+        include,
       });
 
       if (!spider) {
@@ -216,6 +231,11 @@ class SpiderController {
         await Image.destroy({ where: { spiderId: spider.id } });
       }
 
+      if (spider.sources) {
+        spider.sources.forEach(async (source) => {
+          source.destroy();
+        });
+      }
       await spider.destroy();
 
       res.status(200).json({ message: "Spider deleted." });

@@ -36,10 +36,14 @@ export default async (options?: Options) => {
         name: "krzyżakowats",
         latinName: "testtest",
         appearanceDesc:
-          "majom krzyz na dupie. // mają 8 nóg === to jest podtytuł === hej hej hej to jest podsekcja",
+          "ogromny pajonk. // mają 8 nóg === to jest podtytuł === hej hej hej to jest podsekcja",
         behaviorDesc: "robią dwuwymiarowe sieci",
-        sources:
-          "https://pl.wikipedia.org/wiki/Krzy%C5%BCakowate https://arages.de/files/checklist2004_araneae.pdf",
+      });
+      await firstSuggestion.$create("source", {
+        source: "https://pl.wikipedia.org/wiki/Krzy%C5%BCakowate",
+      });
+      await firstSuggestion.$create("source", {
+        source: "https://arages.de/files/checklist2004_araneae.pdf",
       });
       const suggestionImage = await firstSuggestion.$create("image", {
         src: "img/krzyzak.jpg",
@@ -50,10 +54,14 @@ export default async (options?: Options) => {
         name: "krzyżakowate",
         latinName: "araneidae",
         appearanceDesc:
-          "=== to tez jest podtytul === majom krzyz na dupie. // mają 8 nóg === to jest podtytuł === hej hej hej to jest podsekcja",
+          "=== to tez jest podtytul === ile dalbym by zapomniec cie wszystkie chwile te ktore sa na nie bo chce bo chce nie myslec o tym juz zdmuchnac wszystkie wspomnienia niczym zalegly kusz tak juz tak juz po prostu nie pamietac sytuacji w ktorych serce penka wiem nie wyrwe sie chociaz bardzo chce mam nadzieje ze to weisz i ty i ty. // mają 8 nóg === to jest podtytuł === hej hej hej to jest podsekcja",
         behaviorDesc: "robią dwuwymiarowe sieci",
-        sources:
-          "https://pl.wikipedia.org/wiki/Krzy%C5%BCakowate https://arages.de/files/checklist2004_araneae.pdf",
+      });
+      await firstFamily.$create("source", {
+        source: "https://pl.wikipedia.org/wiki/Krzy%C5%BCakowate",
+      });
+      await firstFamily.$create("source", {
+        source: "https://arages.de/files/checklist2004_araneae.pdf",
       });
       const familyImage = await firstFamily.$create("image", {
         src: "img/krzyzak.jpg",
@@ -67,9 +75,12 @@ export default async (options?: Options) => {
           "Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim commodi atque aut voluptates ea deleniti nostrum deserunt, ipsam repudiandae soluta quis maiores similique libero ipsa excepturi odit voluptatibus fugit sint temporibus ipsum! Commodi, corrupti? Ipsam, doloremque. Ex, debitis quo? Nostrum esse et commodi neque assumenda repellendus, veniam in exercitationem. Error molestiae saepe blanditiis incidunt numquam dolorum, libero quasi? Aperiam veritatis omnis id eveniet autem quo fugit vel saepe, neque expedita quam? Modi vel iusto facere laudantium porro voluptate, minus quia tempora sunt perferendis quibusdam fugiat nemo dolorum dolorem, corporis deleniti sed magni impedit. Necessitatibus soluta repellendus error tenetur aliquam, ratione quae porro eius eligendi quasi, at voluptatibus ducimus dolore! Distinctio corporis minima inventore nihil ad maiores facilis aperiam magnam assumenda illo sint, praesentium dolore, excepturi, ipsam cupiditate amet voluptas repellat. Sunt quas ex temporibus, ea dignissimos beatae sed laudantium totam enim harum sapiente cumque reprehenderit maxime quos officiis commodi pariatur numquam quis repellendus. Eveniet nemo inventore incidunt dicta, voluptatum impedit in iure vero quo explicabo dolor eum sequi, aut quisquam eaque veritatis fugiat odit expedita quis neque consequatur aspernatur distinctio qui. Minima atque dolor dignissimos provident! Ducimus fuga optio itaque ex ut, at quo aut nostrum, eveniet atque harum consequuntur pariatur, officia laudantium. Laboriosam sit beatae ullam reiciendis soluta hic repudiandae accusantium modi, dolores consequatur similique harum quae expedita delectus provident sunt quis iure, aliquam, at sapiente facilis labore rerum vero? Quaerat corporis, molestias ea fugiat aliquid, amet tenetur iure, ipsum veniam impedit asperiores ipsam temporibus nisi debitis quia? Ducimus, fugit. Laudantium, perspiciatis? Laudantium laborum modi quis tenetur officia numquam, delectus cupiditate nobis, veniam obcaecati nulla molestias quaerat sit necessitatibus iusto? Facere harum quis tempore magni consectetur laudantium sunt recusandae soluta minima dolorum, modi non voluptas exercitationem consequatur doloribus culpa sit et accusantium corporis. Ab eum odio quam mollitia ea.",
         behaviorDesc:
           "Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim commodi atque aut voluptates ea deleniti nostrum deserunt, ipsam repudiandae soluta quis maiores similique libero ipsa excepturi odit voluptatibus fugit sint temporibus ipsum! Commodi, corrupti? Ipsam, doloremque. Ex, debitis quo? Nostrum esse et commodi neque assumenda repellendus, veniam in exercitationem. Error molestiae saepe blanditiis incidunt numquam dolorum, libero quasi? Aperiam veritatis omnis id eveniet autem quo fugit vel saepe, neque expedita quam? Modi vel iusto facere laudantium porro voluptate, minus quia tempora sunt perferendis quibusdam fugiat nemo dolorum dolorem, corporis deleniti sed magni impedit. Necessitatibus soluta repellendus error tenetur aliquam, ratione quae porro eius eligendi quasi, at voluptatibus ducimus dolore! Distinctio corporis minima inventore nihil ad maiores facilis aperiam magnam assumenda illo sint, praesentium dolore, excepturi, ipsam cupiditate amet voluptas repellat. Sunt quas ex temporibus, ea dignissimos beatae sed laudantium totam enim harum sapiente cumque reprehenderit maxime quos officiis commodi pariatur numquam quis repellendus. Eveniet nemo inventore incidunt dicta, voluptatum impedit in iure vero quo explicabo dolor eum sequi, aut quisquam eaque veritatis fugiat odit expedita quis neque consequatur aspernatur distinctio qui. Minima atque dolor dignissimos provident! Ducimus fuga optio itaque ex ut, at quo aut nostrum, eveniet atque harum consequuntur pariatur, officia laudantium. Laboriosam sit beatae ullam reiciendis soluta hic repudiandae accusantium modi, dolores consequatur similique harum quae expedita delectus provident sunt quis iure, aliquam, at sapiente facilis labore rerum vero? Quaerat corporis, molestias ea fugiat aliquid, amet tenetur iure, ipsum veniam impedit asperiores ipsam temporibus nisi debitis quia? Ducimus, fugit. Laudantium, perspiciatis? Laudantium laborum modi quis tenetur officia numquam, delectus cupiditate nobis, veniam obcaecati nulla molestias quaerat sit necessitatibus iusto? Facere harum quis tempore magni consectetur laudantium sunt recusandae soluta minima dolorum, modi non voluptas exercitationem consequatur doloribus culpa sit et accusantium corporis. Ab eum odio quam mollitia ea.",
-        sources: "https://pl.wikipedia.org/wiki/Krzy%C5%BCakowate",
         userId: user.id,
         adminId: user.id,
+      });
+
+      await firstSpider.$create("source", {
+        source: "https://pl.wikipedia.org/wiki/Krzy%C5%BCakowate",
       });
 
       await firstSpider.$create("image", {

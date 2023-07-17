@@ -9,6 +9,7 @@ import Image from "../src/models/image";
 import Suggestion from "../src/models/suggestion";
 import User from "../src/models/user";
 import unlinkImg from "../src/util/unlinkImg";
+import Source from "../src/models/source";
 
 const request = supertest(app);
 
@@ -202,7 +203,7 @@ describe("family controllers", () => {
 
         Family.findOne({
           where: { latinName: "testus maximus" },
-          include: Family.associations.image,
+          include: [Family.associations.image, Family.associations.sources],
         })
           .then((family) => {
             expect(family).to.not.be.equal(null);
@@ -210,9 +211,9 @@ describe("family controllers", () => {
               expect(family.name).to.be.equal("");
               expect(family.image.src).to.include("darownik.jpeg");
               expect(family.image.author).to.be.equal("Jacek Placek");
-              expect(family.sources).to.be.equal(
-                "https://google.com https://wikipedia.org "
-              );
+              console.log("-------------------------------");
+              console.log(family.sources);
+              expect(family.sources).to.be.lengthOf(2);
               expect(family.userId).to.be.equal(adminId);
             }
             done();
@@ -228,7 +229,7 @@ describe("family controllers", () => {
       .attach("image", secondImagePath)
       .field("latinName", "Pardosa amentata")
       .field("name", "wałęsak zwyczajny")
-      .field("sources", "https://google.com https://wikipedia.org")
+      .field("sources", ["https://google.com", "https://wikipedia.org"])
       .expect(200)
       .end((err, res) => {
         imagesToDelete.push(res.body.family.image.src);
@@ -237,7 +238,7 @@ describe("family controllers", () => {
         expect(res.body.message).to.be.equal("Family updated.");
         Family.findOne({
           where: { latinName: "Pardosa amentata" },
-          include: Family.associations.image,
+          include: [Family.associations.image, Family.associations.sources],
         })
           .then((family) => {
             expect(family).to.not.be.equal(null);
@@ -245,9 +246,7 @@ describe("family controllers", () => {
               expect(family.name).to.be.equal("wałęsak zwyczajny");
               expect(family.image.src).to.include("walesak.jpeg");
               expect(family.image.author).to.be.equal("");
-              expect(family.sources).to.be.equal(
-                "https://google.com https://wikipedia.org"
-              );
+              expect(family.sources).to.be.lengthOf(2);
             }
             done();
           })
@@ -263,7 +262,7 @@ describe("family controllers", () => {
       .field("latinName", "Pardosa amentata")
       .field("name", "wałęsak zwyczajny")
       .field("it", "doesn't exist lol")
-      .field("sources", "")
+      .field("sources", [""])
       .expect(200)
       .end((err, res) => {
         imagesToDelete.push(res.body.family.image.src);
@@ -272,7 +271,10 @@ describe("family controllers", () => {
 
         Suggestion.findOne({
           where: { latinName: "Pardosa amentata" },
-          include: Suggestion.associations.image,
+          include: [
+            Suggestion.associations.image,
+            Suggestion.associations.sources,
+          ],
         })
           .then((suggestion) => {
             expect(suggestion).not.to.be.equal(null);
@@ -283,7 +285,7 @@ describe("family controllers", () => {
               } else {
                 throw new Error("Suggestion has no image!");
               }
-              expect(suggestion.sources).to.be.equal("");
+              expect(suggestion.sources).to.be.lengthOf(0);
               expect(suggestion.userId).to.be.equal(notAdminId);
             }
             done();
@@ -327,6 +329,7 @@ describe("family controllers", () => {
 
   after(async () => {
     await Image.drop();
+    await Source.drop();
     await Spider.drop();
     await Family.drop();
     await Suggestion.drop();

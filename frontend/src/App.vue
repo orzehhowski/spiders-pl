@@ -163,7 +163,7 @@ export default {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 hr.small {

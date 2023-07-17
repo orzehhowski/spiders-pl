@@ -13,8 +13,10 @@ import {
   ForeignKey,
   BelongsTo,
   HasOne,
+  HasMany,
 } from "sequelize-typescript";
 import User from "./user";
+import Source from "./source";
 import Image from "./image";
 
 @Table
@@ -51,8 +53,8 @@ export default class Suggestion extends Model {
   @Column(DataType.TEXT)
   behaviorDesc?: string;
 
-  @Column(DataType.TEXT)
-  sources?: string;
+  @HasMany(() => Source)
+  sources?: Source[];
 
   @HasOne(() => Image)
   image?: Image;

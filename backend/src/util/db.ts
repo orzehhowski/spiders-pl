@@ -5,6 +5,7 @@ import Family from "../models/family";
 import Image from "../models/image";
 import User from "../models/user";
 import Suggestion from "../models/suggestion";
+import Source from "../models/source";
 
 interface Options {
   isTesting?: boolean;
@@ -32,7 +33,7 @@ const initSequelize = (options?: Options) => {
     host: process.env.DB_HOST,
     port: parseInt(process.env.DB_PORT || "3306"),
     password: process.env.DB_PASSWORD,
-    models: [Family, Spider, Image, User, Suggestion],
+    models: [Family, Spider, Image, User, Suggestion, Source],
     logging: options?.isTesting ? false : (sql) => console.log(sql),
   });
 };

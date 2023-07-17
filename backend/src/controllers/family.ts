@@ -26,15 +26,16 @@ class FamilyController {
     const id: number = +req.params.id;
 
     try {
-      const family = await Family.findByPk(id);
+      const family = await Family.findByPk(id, {
+        include: Family.associations.sources,
+      });
 
       if (!family) {
         throw new HttpError(404, "Family not found.");
       }
 
       const { name, latinName, appearanceDesc, behaviorDesc } = family;
-      const sources = family.sources ? family.sources.split(" ") : [];
-
+      const sources = family.sources ? family.sources.map((s) => s.source) : [];
       // fetch species in family with images
       const spiders = await Spider.findAll({
         attributes: ["latinName", "name", "id"],
@@ -57,20 +58,8 @@ class FamilyController {
   }
 
   // POST /family
-  // body: { image!: file, latinName!, name?, behaviorDesc?, appearanceDesc?, imageAuthor?, sources? }
+  // body: { image!: file, latinName!: String, name?: String, behaviorDesc?: String, appearanceDesc?:String , imageAuthor?: String, sources?: Array }
   async post(req: Request, res: Response, next: NextFunction) {
-    // restore sources to string
-    let sourcesStr: string | null;
-    if (typeof req.body.sources === "string") {
-      sourcesStr = req.body.sources;
-    } else if (req.body.sources == null) {
-      sourcesStr = null;
-    } else {
-      sourcesStr = "";
-      req.body.sources.forEach((source: string) => {
-        sourcesStr += source + " ";
-      });
-    }
     try {
       // check if file provided
       if (!req.file) {
@@ -95,7 +84,6 @@ class FamilyController {
       if (req.isAdmin) {
         const newFamily = await Family.create({
           ...req.body,
-          sources: sourcesStr,
           userId: req.userId,
           adminId: req.userId,
         });
@@ -103,12 +91,20 @@ class FamilyController {
           src,
           author: req.body.imageAuthor,
         });
+        if (req.body.sources) {
+          req.body.sources.forEach(async (source: string) => {
+            await newFamily.$create("source", {
+              source,
+            });
+          });
+        }
 
         res.status(201).json({
           message: "Family created.",
           family: {
             ...newFamily.dataValues,
             image: { src, author: req.body.imageAuthor },
+            sources: req.body.sources,
           },
         });
       }
@@ -118,7 +114,6 @@ class FamilyController {
         if (user) {
           const family = {
             ...req.body,
-            sources: sourcesStr,
           };
           const suggestion = await user.$create("suggestion", {
             ...family,
@@ -129,6 +124,13 @@ class FamilyController {
             src,
             author: req.body.imageAuthor,
           });
+          if (family.sources) {
+            family.sources.forEach(async (source: string) => {
+              await suggestion.$create("source", {
+                source,
+              });
+            });
+          }
           res.status(200).json({
             message: "Create family suggestion sent.",
             family: {
@@ -153,7 +155,7 @@ class FamilyController {
   async put(req: Request, res: Response, next: NextFunction) {
     try {
       const family = await Family.findByPk(+req.params.id, {
-        include: Family.associations.image,
+        include: [Family.associations.image, Family.associations.sources],
       });
       if (!family) {
         throw new HttpError(404, "Family not found.");
@@ -172,21 +174,6 @@ class FamilyController {
           );
         }
       }
-      // TO JEST ZJEBANE BO JAK NIE MA SOURCES W BODY TO WYSYLA ZE STARYM A NIE MA TAK BYC
-      // restore sources to string
-      let sourcesStr: string | null | undefined;
-      if (typeof req.body.sources === "string") {
-        sourcesStr = req.body.sources;
-      } else if (req.body.sources === undefined) {
-        sourcesStr = family.sources;
-      } else if (req.body.sources == null) {
-        sourcesStr = null;
-      } else {
-        sourcesStr = "";
-        req.body.sources.forEach((source: string) => {
-          sourcesStr += source + " ";
-        });
-      }
 
       // update family if user is admin
       if (req.isAdmin) {
@@ -195,8 +182,22 @@ class FamilyController {
           family.image && unlinkImg(family.image.src);
           family.image.src = req.file.path.replace("src/public/", "");
         }
+
+        // if there are new sources...
+        if (req.body.sources) {
+          // delete these old
+          if (family.sources) {
+            family.sources.forEach(async (source) => {
+              await source.destroy();
+            });
+          }
+          // and create new
+          req.body.sources.forEach(async (source: string) => {
+            await family.$create("source", { source });
+          });
+        }
         // update family
-        Object.assign(family, req.body, { sources: sourcesStr });
+        Object.assign(family, req.body);
 
         if (req.body.imageAuthor) {
           family.image.author = req.body.imageAuthor;
@@ -221,7 +222,7 @@ class FamilyController {
         // check if image provided
         const src = req.file?.path.replace("src/public/", "") || null;
 
-        const newFamily = Object.assign(req.body, { sources: sourcesStr });
+        const newFamily = Object.assign(req.body);
         const suggestion = await user.$create("suggestion", {
           ...newFamily,
           isNew: false,
@@ -234,6 +235,11 @@ class FamilyController {
           await suggestion.$create("image", {
             src,
             author: req.body.imageAuthor,
+          });
+        }
+        if (newFamily.sources) {
+          newFamily.sources.forEach(async (source: string) => {
+            await suggestion.$create("source", { source });
           });
         }
 
@@ -253,13 +259,17 @@ class FamilyController {
   // DELETE /family:id
   async delete(req: Request, res: Response, next: NextFunction) {
     if (!req.isAdmin) {
-      return next(new HttpError(403, "Only admin can delete sources."));
+      return next(new HttpError(403, "Only admin can delete resources."));
     }
     const id = +req.params.id;
 
     try {
       const family = await Family.findByPk(id, {
-        include: [Family.associations.spiders, Family.associations.image],
+        include: [
+          Family.associations.spiders,
+          Family.associations.image,
+          Family.associations.sources,
+        ],
       });
       if (!family) {
         throw new HttpError(404, "Family not found.");
@@ -272,6 +282,9 @@ class FamilyController {
       family.image && unlinkImg(family.image.src);
 
       await family.image.destroy();
+      family.sources?.forEach(async (source) => {
+        await source.destroy();
+      });
       await family.destroy();
 
       res.status(200).json({ message: "Family deleted." });

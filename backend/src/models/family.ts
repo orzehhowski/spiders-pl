@@ -15,6 +15,7 @@ import {
 import Spider from "./spider";
 import User from "./user";
 import Image from "./image";
+import Source from "./source";
 
 @Table
 export default class Family extends Model {
@@ -32,8 +33,8 @@ export default class Family extends Model {
   @Column(DataType.TEXT)
   behaviorDesc?: string;
 
-  @Column(DataType.TEXT)
-  sources?: string;
+  @HasMany(() => Source)
+  sources?: Source[];
 
   @HasOne(() => Image)
   image!: Image;

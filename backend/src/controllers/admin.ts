@@ -29,7 +29,9 @@ class adminController {
     const id = +req.params.id;
     try {
       checkAdmin(req);
-      const suggestion = await Suggestion.findByPk(id);
+      const suggestion = await Suggestion.findByPk(id, {
+        include: Suggestion.associations.sources,
+      });
       if (!suggestion) {
         return next(new HttpError(404, "Suggestion not found."));
       }
@@ -43,12 +45,12 @@ class adminController {
   // body: {name?, latinName?, appearanceDesc?, behaviorDesc?, sources?, familyId?}
   async acceptSuggestion(req: Request, res: Response, next: NextFunction) {
     interface data {
-      [key: string]: string | number | undefined;
+      [key: string]: string | string[] | number | undefined;
       name?: string;
       latinName?: string;
       appearanceDesc?: string;
       behaviorDesc?: string;
-      sources?: string;
+      sources?: string[];
       familyId?: number;
       userId?: number;
     }
@@ -56,7 +58,10 @@ class adminController {
       const id = +req.params.id;
       checkAdmin(req);
       const suggestion = await Suggestion.findByPk(id, {
-        include: Suggestion.associations.image,
+        include: [
+          Suggestion.associations.image,
+          Suggestion.associations.sources,
+        ],
       });
       if (!suggestion) {
         return next(new HttpError(404, "Suggestion not found."));
@@ -80,7 +85,7 @@ class adminController {
         latinName: suggestion.latinName,
         appearanceDesc: suggestion.appearanceDesc,
         behaviorDesc: suggestion.behaviorDesc,
-        sources: suggestion.sources,
+        sources: suggestion.sources?.map((s) => s.source),
         familyId: suggestion.familyId,
         userId: suggestion.userId,
       };
@@ -158,6 +163,19 @@ class adminController {
         }
 
         await resource.update(nonUndefinedData);
+        if (nonUndefinedData.sources) {
+          if (resource.sources) {
+            resource.sources.forEach(async (source) => {
+              await source.destroy();
+            });
+          }
+          if (typeof nonUndefinedData.sources == "string") {
+            nonUndefinedData.sources = [nonUndefinedData.sources];
+          }
+          nonUndefinedData.sources.forEach((source) => {
+            resource?.$create("source", { source });
+          });
+        }
 
         if (req.userId) {
           suggestion.adminId = req.userId;
@@ -169,7 +187,7 @@ class adminController {
       }
       // or create new resource
       else {
-        let resource;
+        let resource: Spider | Family;
         if (suggestion.isFamily) {
           resource = await Family.create({
             ...mergedData,
@@ -181,6 +199,14 @@ class adminController {
             ...mergedData,
             userId: suggestionData.userId,
             adminId: req.userId,
+          });
+        }
+        if (mergedData.sources) {
+          if (typeof mergedData.sources == "string") {
+            mergedData.sources = [mergedData.sources];
+          }
+          mergedData.sources.forEach(async (source) => {
+            await resource.$create("source", { source });
           });
         }
 
@@ -200,7 +226,6 @@ class adminController {
         return res.status(201).json({ message: "Resource created." });
       }
     } catch (err) {
-      console.log(err);
       next(err);
     }
   }

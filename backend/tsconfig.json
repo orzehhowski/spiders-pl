@@ -129,6 +129,7 @@
     "./src/errors/errorclg.ts",
     "./src/errors/errorMiddleware.ts",
     "./src/controllers/owner.ts",
-    "./src/routes/owner.ts"
+    "./src/routes/owner.ts",
+    "./src/models/source.ts"
   ]
 }

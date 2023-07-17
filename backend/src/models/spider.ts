@@ -14,6 +14,7 @@ import {
 import Family from "./family";
 import Image from "./image";
 import User from "./user";
+import Source from "./source";
 
 @Table
 export default class Spider extends Model {
@@ -31,8 +32,8 @@ export default class Spider extends Model {
   @Column(DataType.TEXT)
   behaviorDesc?: string;
 
-  @Column(DataType.TEXT)
-  sources?: string;
+  @HasMany(() => Source)
+  sources?: Source[];
 
   // user that suggested creation
   @ForeignKey(() => User)

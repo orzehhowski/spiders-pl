@@ -9,6 +9,7 @@ import Image from "../src/models/image";
 import Suggestion from "../src/models/suggestion";
 import User from "../src/models/user";
 import unlinkImg from "../src/util/unlinkImg";
+import Source from "../src/models/source";
 
 const request = supertest(app);
 
@@ -161,13 +162,12 @@ describe("spider controllers", () => {
 
     const spider = await Spider.findOne({
       where: { latinName: "testus maximus" },
+      include: Spider.associations.sources,
     });
     expect(spider).to.not.be.equal(null);
     if (spider) {
       expect(spider.name).to.be.equal("");
-      expect(spider.sources).to.be.equal(
-        "https://google.com https://wikipedia.org "
-      );
+      expect(spider.sources).to.be.lengthOf(2);
       expect(spider.userId).to.be.equal(adminId);
     }
   });
@@ -252,6 +252,7 @@ describe("spider controllers", () => {
 
   after(async () => {
     await Image.drop();
+    await Source.drop();
     await Spider.drop();
     await Family.drop();
     await Suggestion.drop();

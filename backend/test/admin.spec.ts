@@ -9,6 +9,7 @@ import Image from "../src/models/image";
 import Suggestion from "../src/models/suggestion";
 import User from "../src/models/user";
 import unlinkImg from "../src/util/unlinkImg";
+import Source from "../src/models/source";
 
 const request = supertest(app);
 
@@ -37,8 +38,12 @@ describe("admin controllers", () => {
       latinName: "araneidae",
       appearanceDesc: "majom krzyz na dupie",
       behaviorDesc: "dzieci na sieci",
-      sources:
-        "https://pl.wikipedia.org/wiki/Krzy%C5%BCakowate https://arages.de/files/checklist2004_araneae.pdf",
+    });
+    await createFamilySuggestion.$create("source", {
+      source: "https://pl.wikipedia.org/wiki/Krzy%C5%BCakowate",
+    });
+    await createFamilySuggestion.$create("source", {
+      source: "https://arages.de/files/checklist2004_araneae.pdf",
     });
     await createFamilySuggestion.$create("image", {
       src: "img/krzyzak2.jpg",
@@ -194,7 +199,7 @@ describe("admin controllers", () => {
     const res = await request
       .post("/admin/accept/2")
       .field("latinName", "testidae")
-      .field("sources", "www.google.com")
+      .field("sources", ["www.google.com"])
       .set("Authorization", adminBearerToken)
       .expect(201);
 
@@ -202,7 +207,7 @@ describe("admin controllers", () => {
 
     const createdFamily = await Family.findOne({
       where: { latinName: "testidae" },
-      include: Family.associations.image,
+      include: [Family.associations.image, Family.associations.sources],
     });
     const acceptedSuggestion = await Suggestion.findByPk(2, {
       include: Suggestion.associations.image,
@@ -214,7 +219,7 @@ describe("admin controllers", () => {
       expect(createdFamily.appearanceDesc).to.be.equal(
         acceptedSuggestion?.appearanceDesc
       );
-      expect(createdFamily.sources).to.be.equal("www.google.com");
+      expect(createdFamily.sources).to.be.lengthOf(1);
       expect(createdFamily.image?.src).to.be.equal(
         acceptedSuggestion?.image?.src
       );
@@ -386,6 +391,7 @@ describe("admin controllers", () => {
 
   after(async () => {
     await Image.drop();
+    await Source.drop();
     await Spider.drop();
     await Family.drop();
     await Suggestion.drop();

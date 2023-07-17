@@ -69,7 +69,7 @@ export default {
       :id="id"
       title="Tryb życia"
     />
-    <SourcesList :sources="sources" />
+    <SourcesList :sources="sources" :isFamily="false" :id="id" />
   </main>
 
   <ErrorMessage v-else-if="resStatus" :status="resStatus" :message="message" />
