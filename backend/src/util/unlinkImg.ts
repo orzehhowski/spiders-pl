@@ -1,3 +1,4 @@
+// function to delete image with given path
 import fs from "fs";
 import path from "path";
 

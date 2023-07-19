@@ -1,3 +1,4 @@
+// it's just seed to initalize database
 import User from "../models/user";
 import db from "./db";
 import { hash } from "bcryptjs";

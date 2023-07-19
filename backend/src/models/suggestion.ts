@@ -1,5 +1,5 @@
 /* 
-Suggestion model is for a non-admin users suggestions of editing or adding sources. 
+Suggestion model is for a non-admin users suggestions of editing or adding resources. 
 Request will be shown in admin panel, and admin can improve data and accept request or
 reject it. 
 */

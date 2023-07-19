@@ -12,11 +12,12 @@ import imageRoutes from "./routes/image";
 import adminRoutes from "./routes/admin";
 import authRoutes from "./routes/auth";
 import ownerRoutes from "./routes/owner";
-// import initalSeed from "./util/initalSeed";
 import errorMiddleware from "./errors/errorMiddleware";
 
+// init express app
 const app = express();
 
+// create multer file storage
 const fileStorage = multer.diskStorage({
   destination(req, file, callback) {
     callback(null, path.join("src", "public", "img"));
@@ -56,6 +57,7 @@ app.use((req, res, next) => {
   next();
 });
 
+// log middleware
 app.use((req: Request, res: Response, next: NextFunction) => {
   console.log(req.method + req.url);
   console.log(req.body);
@@ -78,15 +80,5 @@ app.use((req: Request, res: Response) => {
   res.status(404).json({ message: "Not found." });
 });
 app.use(errorMiddleware);
-
-// RUNNING APP
-
-// initalSeed()
-//   .then(() => {
-//     app.listen(8080);
-//   })
-//   .catch((err) => {
-//     console.log(err);
-//   });
 
 export default app;

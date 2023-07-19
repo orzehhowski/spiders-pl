@@ -100,6 +100,9 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
+  /* unfortunately I don't know why "include" property breaks code which uses fields added to express Request object in /types/express.d.ts 
+     and I must use "files" property instead...
+  */
   "files": [
     "./src/util/unlinkImg.ts",
     "./src/util/initalSeed.ts",

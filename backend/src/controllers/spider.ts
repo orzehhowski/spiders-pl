@@ -12,17 +12,25 @@ class SpiderController {
   // GET /spider/:id
   async getById(req: Request, res: Response, next: NextFunction) {
     try {
+      // fetch spider from db
       const spider = await Spider.findByPk(+req.params.id, {
         include: [Spider.associations.images, Spider.associations.sources],
       });
+
+      // check if spider exists
       if (!spider) {
         throw new HttpError(404, "Spider not found.");
       }
+
+      // set appropiate sources - only strings, not whole db objects
       const sourcesStrings = spider.sources
         ? spider.sources.map((s) => s.source)
         : [];
+      // retrieve data from spider object
       const { name, latinName, appearanceDesc, behaviorDesc, id, images } =
         spider;
+
+      // send response
       res.status(200).json({
         name,
         latinName,
@@ -38,11 +46,14 @@ class SpiderController {
   }
 
   // POST /spider
-  // body: { image!: file, familyId!, latinName!, name?, behaviorDesc?, appearanceDesc?, imageAuthor?, sources? }
+  // body: { image!: file, familyId!: number, latinName!: string, name?: string,
+  //         behaviorDesc?: string, appearanceDesc?: string, imageAuthor?: string, sources?: string[] }
   async post(req: Request, res: Response, next: NextFunction) {
+    // read family id from request
     const familyId = +req.body.familyId;
 
     try {
+      // check if provided latin name is taken
       const isLatinNameTaken = await Spider.findOne({
         where: { latinName: req.body.latinName },
       });
@@ -67,6 +78,7 @@ class SpiderController {
         author: req.body.imageAuthor,
       };
 
+      // get family from db and check if it exists
       const family = await Family.findByPk(familyId);
       if (!family) {
         throw new HttpError(404, "Family not found.");
@@ -79,10 +91,12 @@ class SpiderController {
           adminId: req.userId,
         });
 
+        // create attached image and sources
         await spider.$create("image", imageInfo);
         req.body.sources?.forEach(async (source: string) => {
           await spider.$create("source", { source });
         });
+        // send response
         res.status(201).json({
           message: "Spider created.",
           spider: {
@@ -92,23 +106,28 @@ class SpiderController {
           },
         });
       }
-      // else send suggestion
+      // if user is not admin, send suggestion
       else {
+        // fetch user from db and check if exists
         const user = await User.findByPk(req.userId);
         if (!user) {
           throw new HttpError(401, "User not found");
         }
 
+        // create suggestion
         const suggestion = await user.$create("suggestion", {
           ...req.body,
           isFamily: false,
           isNew: true,
         });
 
+        // save image and sources in db
         await suggestion.$create("image", imageInfo);
         req.body.sources?.forEach(async (source: string) => {
           await suggestion.$create("source", { source });
         });
+
+        // send response
         res.status(200).json({
           message: "Create spider suggestion sent.",
           spider: {
@@ -123,8 +142,9 @@ class SpiderController {
   }
 
   // PUT /spider/:id
-  // body: { latinName?, name?, behaviorDesc?, appearanceDesc?, sources? }
+  // body: { latinName?: string, name?: string, behaviorDesc?: string, appearanceDesc?: string, sources?: string[] }
   async put(req: Request, res: Response, next: NextFunction) {
+    // read data from request
     const spiderId = +req.params.id;
     const latinName = req.body.latinName;
     try {
@@ -141,7 +161,7 @@ class SpiderController {
         }
       }
 
-      // find spider
+      // find spider in db and check if exists
       const spider = await Spider.findByPk(spiderId, {
         include: Spider.associations.sources,
       });
@@ -168,17 +188,21 @@ class SpiderController {
             })
           );
         }
+        // override outdated data and save changes
         Object.assign(spider, req.body);
         await spider.save();
 
+        // send response
         res.status(200).json({ message: "Spider updated.", spider: spider });
       }
-      // if not create a suggestion
+      // if user is not admin create a suggestion
       else {
+        // find user in db
         const user = await User.findByPk(req.userId);
         if (!user) {
           throw new HttpError(401, "User not found.");
         }
+        // create new suggestion
         const suggestion = await user.$create("suggestion", {
           ...req.body,
           isFamily: false,
@@ -186,12 +210,14 @@ class SpiderController {
           resourceId: spider.id,
         });
 
+        // save sources in db
         if (req.body.sources) {
           req.body.sources.forEach(async (source: string) => {
             await suggestion.$create("source", { source });
           });
         }
 
+        // send response
         res.status(200).json({ message: "Update spider suggestion sent." });
       }
     } catch (err) {
@@ -199,7 +225,7 @@ class SpiderController {
     }
   }
 
-  // DELETE /spider/:id?inclugeImages
+  // DELETE /spider/:id?includeImages
   async delete(req: Request, res: Response, next: NextFunction) {
     // check if user is admin
     if (!req.isAdmin) {
@@ -211,6 +237,7 @@ class SpiderController {
     const includeImages: boolean = req.query.includeImages !== undefined;
 
     try {
+      // fetch spider with or without images
       const include = [Spider.associations.sources];
       if (includeImages) {
         include.push(Spider.associations.sources);
@@ -219,6 +246,7 @@ class SpiderController {
         include,
       });
 
+      // check if spider exists
       if (!spider) {
         throw new HttpError(404, "Spider not found.");
       }
@@ -231,13 +259,16 @@ class SpiderController {
         await Image.destroy({ where: { spiderId: spider.id } });
       }
 
+      // delete sources from db
       if (spider.sources) {
         spider.sources.forEach(async (source) => {
           source.destroy();
         });
       }
+      // delete spider from db
       await spider.destroy();
 
+      // send response
       res.status(200).json({ message: "Spider deleted." });
     } catch (err) {
       next(err);

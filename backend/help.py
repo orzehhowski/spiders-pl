@@ -1,10 +1,13 @@
+# file for print all .ts files (for tsconfig.json)
 import os
+
 
 def printFile(uno, dos=""):
     if (dos):
         print(f"\"./src/{dos}/{uno}\",")
     else:
         print(f"\"./src/{uno}\",")
+
 
 print("[")
 for file in os.listdir("./src"):

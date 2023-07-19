@@ -1,3 +1,4 @@
+// this model represents image saved in filesystem - contains path and author
 import {
   Table,
   Column,

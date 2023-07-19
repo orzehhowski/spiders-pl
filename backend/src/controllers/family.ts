@@ -11,10 +11,12 @@ class FamilyController {
   // GET /family
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
+      // receive families from db
       const families = await Family.findAll({
         include: Family.associations.image,
       });
 
+      // send response
       res.status(200).json({ families });
     } catch (err) {
       next(err);
@@ -23,18 +25,23 @@ class FamilyController {
 
   // GET /family/:id
   async get(req: Request, res: Response, next: NextFunction) {
+    // read id from request
     const id: number = +req.params.id;
 
     try {
+      // fetch family from db
       const family = await Family.findByPk(id, {
         include: Family.associations.sources,
       });
 
+      // check if family exists
       if (!family) {
         throw new HttpError(404, "Family not found.");
       }
 
+      // receive data from family object
       const { name, latinName, appearanceDesc, behaviorDesc } = family;
+      // set sources correctly
       const sources = family.sources ? family.sources.map((s) => s.source) : [];
       // fetch species in family with images
       const spiders = await Spider.findAll({
@@ -43,6 +50,7 @@ class FamilyController {
         include: Spider.associations.images,
       });
 
+      // send response
       res.status(200).json({
         name,
         latinName,
@@ -58,7 +66,7 @@ class FamilyController {
   }
 
   // POST /family
-  // body: { image!: file, latinName!: String, name?: String, behaviorDesc?: String, appearanceDesc?:String , imageAuthor?: String, sources?: Array }
+  // body: { image!: file, latinName!: string, name?: string, behaviorDesc?: string, appearanceDesc?: string , imageAuthor?: string, sources?: string[] }
   async post(req: Request, res: Response, next: NextFunction) {
     try {
       // check if file provided
@@ -87,10 +95,12 @@ class FamilyController {
           userId: req.userId,
           adminId: req.userId,
         });
+        // save path to image in db
         await newFamily.$create("image", {
           src,
           author: req.body.imageAuthor,
         });
+        // save sources correctly
         if (req.body.sources) {
           req.body.sources.forEach(async (source: string) => {
             await newFamily.$create("source", {
@@ -99,6 +109,7 @@ class FamilyController {
           });
         }
 
+        // send response
         res.status(201).json({
           message: "Family created.",
           family: {
@@ -108,22 +119,26 @@ class FamilyController {
           },
         });
       }
-      // else create and send suggestion
+      // if user is not admin, send suggestion
       else {
+        // fetch user data
         const user = await User.findByPk(req.userId);
         if (user) {
           const family = {
             ...req.body,
           };
+          // create suggestion depending on request body
           const suggestion = await user.$create("suggestion", {
             ...family,
             isFamily: true,
             isNew: true,
           });
+          // save path to image in db
           await suggestion.$create("image", {
             src,
             author: req.body.imageAuthor,
           });
+          // save sources correctly
           if (family.sources) {
             family.sources.forEach(async (source: string) => {
               await suggestion.$create("source", {
@@ -131,6 +146,7 @@ class FamilyController {
               });
             });
           }
+          // send response
           res.status(200).json({
             message: "Create family suggestion sent.",
             family: {
@@ -151,16 +167,19 @@ class FamilyController {
   }
 
   // PUT /family/:id
-  // body: { image?: file, latinName?, name?, behaviorDesc?, appearanceDesc?, imageAuthor?, sources? }
+  // body: { image?: file, latinName?: string, name?: string, behaviorDesc?: string, appearanceDesc?: string, imageAuthor?: string, sources?: string[] }
   async put(req: Request, res: Response, next: NextFunction) {
     try {
+      // fetch family from db
       const family = await Family.findByPk(+req.params.id, {
         include: [Family.associations.image, Family.associations.sources],
       });
+      // check if family exists
       if (!family) {
         throw new HttpError(404, "Family not found.");
       }
 
+      // check if latin name is taken
       const latinName = req.body.latinName;
 
       if (latinName) {
@@ -177,7 +196,7 @@ class FamilyController {
 
       // update family if user is admin
       if (req.isAdmin) {
-        // change file if provided
+        // change family file if provided
         if (req.file) {
           family.image && unlinkImg(family.image.src);
           family.image.src = req.file.path.replace("src/public/", "");
@@ -199,6 +218,7 @@ class FamilyController {
         // update family
         Object.assign(family, req.body);
 
+        // set image author correctly
         if (req.body.imageAuthor) {
           family.image.author = req.body.imageAuthor;
         } else {
@@ -207,14 +227,17 @@ class FamilyController {
           }
         }
 
+        // save changes
         await family.save();
         await family.image.save();
 
+        // send response
         res.status(200).json({ message: "Family updated.", family });
       }
 
-      // else send suggestion
+      // if user is not admin, then send suggestion
       else {
+        // fetch user from db
         const user = await User.findByPk(req.userId);
         if (!user) {
           throw new HttpError(401, "User not found.");
@@ -222,6 +245,7 @@ class FamilyController {
         // check if image provided
         const src = req.file?.path.replace("src/public/", "") || null;
 
+        // create suggestion
         const newFamily = Object.assign(req.body);
         const suggestion = await user.$create("suggestion", {
           ...newFamily,
@@ -237,12 +261,14 @@ class FamilyController {
             author: req.body.imageAuthor,
           });
         }
+        // save sources correctly if provided
         if (newFamily.sources) {
           newFamily.sources.forEach(async (source: string) => {
             await suggestion.$create("source", { source });
           });
         }
 
+        // send response
         res.status(200).json({
           message: "Edit family suggestion sent.",
           family: {
@@ -258,12 +284,15 @@ class FamilyController {
 
   // DELETE /family:id
   async delete(req: Request, res: Response, next: NextFunction) {
+    // check if user is admin
     if (!req.isAdmin) {
       return next(new HttpError(403, "Only admin can delete resources."));
     }
+    // read id from request
     const id = +req.params.id;
 
     try {
+      // fetch family and resources attached to it
       const family = await Family.findByPk(id, {
         include: [
           Family.associations.spiders,
@@ -271,6 +300,8 @@ class FamilyController {
           Family.associations.sources,
         ],
       });
+
+      // bunch of checks
       if (!family) {
         throw new HttpError(404, "Family not found.");
       }
@@ -280,13 +311,17 @@ class FamilyController {
 
       // delete image
       family.image && unlinkImg(family.image.src);
-
       await family.image.destroy();
+
+      // delete sources
       family.sources?.forEach(async (source) => {
         await source.destroy();
       });
+
+      // and finally delete family
       await family.destroy();
 
+      // send response
       res.status(200).json({ message: "Family deleted." });
     } catch (err) {
       next(err);

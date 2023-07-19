@@ -1,3 +1,4 @@
+// middleware that checks if express-validator found some issues in request
 import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
 import HttpError from "../errors/HttpError";

@@ -1,3 +1,4 @@
+// user model - most common thing in the world
 import {
   Column,
   Model,

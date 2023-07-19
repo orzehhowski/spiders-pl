@@ -1,3 +1,4 @@
+// this model represents external source, where user can find more data about spider species/family
 import {
   Table,
   Column,

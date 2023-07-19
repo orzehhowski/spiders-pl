@@ -1,3 +1,4 @@
+// this model represents spiders family - animal taxomony unit
 import {
   Table,
   Column,

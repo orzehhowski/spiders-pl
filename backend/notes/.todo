@@ -1,8 +1,2 @@
-species site DONE
-authentication
-CRUD + forms
-user profile menu
-searching (+ tags)
-sections editing and adding by logged in users
-confirming by admins
-commenting
+- restore posting images (add admin authentication, exclude image from suggestions)
+- check if adding one source to spider works correctly

@@ -1,3 +1,4 @@
+// this model represents spider species
 import {
   Table,
   Column,

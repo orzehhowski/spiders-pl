@@ -1,3 +1,4 @@
+// middleware that checks user authentication and authorization
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
@@ -12,6 +13,7 @@ type Token = {
 };
 
 export default async (req: Request, res: Response, next: NextFunction) => {
+  // read JWT from request
   let token = req.get("Authorization");
 
   // check if Authorization header was provided
@@ -38,9 +40,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
   try {
     decodedToken = jwt.verify(token, SECRET_KEY) as Token;
   } catch (err) {
-    return next(
-      new HttpError(401, "Authorization failed - chuj wrong JWT Token.")
-    );
+    return next(new HttpError(401, "Authorization failed - wrong JWT Token."));
   }
   if (!decodedToken) {
     return next(new HttpError(401, "Authorization failed - wrong JWT Token."));
@@ -51,14 +51,17 @@ export default async (req: Request, res: Response, next: NextFunction) => {
     return next(new HttpError(401, "Authorization failed - wrong User ID."));
   }
 
+  // get user data required for authentication
   const user = await User.findByPk(+decodedToken.userId, {
     attributes: ["isAdmin", "isBanned", "isOwner"],
   });
 
+  // check if user is banned
   if (user) {
     if (user.isBanned) {
       return next(new HttpError(401, "Authorization failed - User is banned."));
     }
+    // set appropiate fields
     req.userId = +decodedToken.userId;
     req.isAdmin = !!user.isAdmin;
     req.isOwner = !!user.isOwner;
@@ -66,5 +69,6 @@ export default async (req: Request, res: Response, next: NextFunction) => {
     return next(new HttpError(401, "Authorization failed - User not found."));
   }
 
+  // and go to actual request handler
   next();
 };

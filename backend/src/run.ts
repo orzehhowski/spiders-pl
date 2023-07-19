@@ -1,3 +1,4 @@
+// code that mounts the app
 import app from "./app";
 import initalSeed from "./util/initalSeed";
 
